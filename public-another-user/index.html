@@ -1,0 +1,3104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+
+    <!--p5ライブラリ-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.js"></script>
+
+    <link href="online_shop_211129.css" rel="stylesheet">
+    <title>online_shop</title>
+    <!--1202.メモ：このindex（firebaseと接続されている）にonline_shop.htmlの内容を統合して、フェイクオンラインショップをとりあえず完成させて可視化プロトタイプのほうの作成をする。-->
+    <!--1205.firebaseの双方向のデータベース読み書きはできるようになった。次はこのuser-siteをフェイクオンラインショップに仕立て上げる。-->
+
+    <!--
+        「public」フォルダ内で「index.html」として管理。firebaseの「myFirstFirebase」プロジェクトに1つ目のアプリとしてデプロイして使う。
+        ターゲット名は「user-site」。
+        実店舗の「admin-site」アプリとデータベースを共有している。
+        使い方：ターミナルでデスクトップの「test211130」フォルダに入り、firebase login。
+        「public」フォルダが現在「user-site」というターゲット名でプロジェクトに扱われている。
+        デプロイ方法：firebase deploy --only hosting:user-site
+        ローカルホスト：firebase serve --only hosting:user-site
+        テストはローカルホストで行い、本番実装はデプロイで行う。
+    -->
+
+    <!-- update the version number as needed -->
+    <script defer src="/__/firebase/9.5.0/firebase-app-compat.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script defer src="/__/firebase/9.5.0/firebase-auth-compat.js"></script>
+    <script defer src="/__/firebase/9.5.0/firebase-database-compat.js"></script>
+    <script defer src="/__/firebase/9.5.0/firebase-firestore-compat.js"></script>
+    <script defer src="/__/firebase/9.5.0/firebase-functions-compat.js"></script>
+    <script defer src="/__/firebase/9.5.0/firebase-messaging-compat.js"></script>
+    <script defer src="/__/firebase/9.5.0/firebase-storage-compat.js"></script>
+    <script defer src="/__/firebase/9.5.0/firebase-analytics-compat.js"></script>
+    <script defer src="/__/firebase/9.5.0/firebase-remote-config-compat.js"></script>
+    <script defer src="/__/firebase/9.5.0/firebase-performance-compat.js"></script>
+    <!-- 
+      initialize the SDK after all desired features are loaded, set useEmulator to false
+      to avoid connecting the SDK to running emulators.
+    -->
+    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+  </head>
+  <body>
+    <header>
+      <div class="logo">
+          <img src="images/logo-webstore.png" alt="LOGO">
+      </div>
+      <nav>
+          <ul class="global-nav">
+              <!-- <li class="navis">Category</li>
+              <li class="navis">Brand</li>
+              <li class="navis">Search</li>
+              <li class="navis">Sign In</li> -->
+              <li class="navis" id="goCargoBtn">Cart</li>
+              <!-- <li class="navis">Menu</li> -->
+          </ul>
+      </nav>
+      <div id="backBtn">
+          <div class="backButton" id="closeBtn">
+              <p class="link">戻る</p>
+          </div>
+      </div>
+  </header>
+  <div id="wrap">
+    <div class="content">
+        <div class="detailPage">
+            <div id="audrey_cocotte">
+                <div class="left_side">
+                    <div class="image_area" class="clearfix">
+                        <div class="small_images">
+                            <img src="images/item01/mainImages/01.jpg" id='item01_p00' alt="img1" class="link" onclick="audrey_cocotte_showimg1()">
+                            <img src="images/item01/mainImages/02.jpg" id='item01_p01' alt="img2" class="link" onclick="audrey_cocotte_showimg2()">
+                            <img src="images/item01/mainImages/03.jpg" id='item01_p02' alt="img3" class="link" onclick="audrey_cocotte_showimg3()">
+                            <img src="images/item01/mainImages/04.jpg" id='item01_p03' alt="img4" class="link" onclick="audrey_cocotte_showimg4()">
+                            <img src="images/item01/mainImages/05.jpg" id='item01_p04' alt="img5" class="link" onclick="audrey_cocotte_showimg5()">
+                            <img src="images/item01/mainImages/06.jpg" id='item01_p05' alt="img6" class="link" onclick="audrey_cocotte_showimg6()">
+                        </div>
+                        <div class="main_image">
+                            <img src="images/item01/mainImages/01.jpg" id="audrey_cocotte_area1" alt="img1" />
+                        </div>
+                    </div>
+                    <div class="sub_info">
+                        <div class="spec">
+                            <table class="table">
+                                <tr><th>メーカー品番</th><td>181757 ～ 181758</td></tr>
+                                <tr><th>商品サイズ</th><td>φ85/H55/150cc<br>※多少の誤差が生じます。</td></tr>
+                                <tr><th>素材</th><td>磁器/透明釉/酸化<br>※銅版絵付けの特性上、柄にシワやズレ、擦れが生じる場合があります。</td></tr>
+                                <tr><th>原産国</th><td>日本</td></tr>
+                                <tr><th>ブランド</th><td>studio m'</td></tr>
+                            </table>
+                        </div>
+                        <p>
+                            お菓子づくりを楽むための器、オードリー。
+                            <br>オーブン対応で、カップケーキ等の焼菓子はもちろん、フルーツゼリーなど様々なお菓子作りを楽しめます。
+                            <br>プレートをソーサーと組み合わせれば、スカラップレースのような形状と繊細な花柄が重なり合って、
+                            自慢のお菓子をより華やかに際立ててくれます。装飾の特別感を生かし、器ごとラッピングをしてギフトにもおすすめです。
+                        </p>
+                        <img src="images/item01/subInfo/01.jpg">
+                        <p>
+                            「作る時間も食べる時間も楽しむお菓子の器」
+                            <br>アフターヌーンティーをはじめとした、英国のお茶会に欠かせないのが甘いお菓子たち。
+                            <br>スコーンやジンジャーブレットケーキなど、シンプルで素朴ながらも、
+                            古くから愛されてきた伝統的なお菓子がイギリスにはたくさんあります。
+                            <br>
+                            <br>レシピを眺めていると、実際に味わってみたくなるもの。
+                            <br>異国の歴史に思いを馳せながら、お菓子作りを楽しみ、
+                            焼きたてのお菓子と紅茶の甘い香りに包まれて、会話も弾むお茶のひとときを過ごせたら。
+                            <br>
+                            <br>そんな思いから、オードリーを企画しました。
+                        </p>
+                        <img src="images/item01/subInfo/02.jpg">
+                        <p>
+                            アイテムは全部で４つ。
+                            <br>ケーキや、プリン等の焼菓子づくりを楽しめるオーブン対応のタルトとココット。
+                            ケーキを盛りつけたり、取り分けるのにぴったりなプレートはφ200とφ155の2サイズ。
+                            タルトと200プレート、ココットと155プレートは、
+                            お菓子をより引き立ててくれるよう、それぞれ重ね使いできるサイズにしました。
+                        </p>
+                        <img src="images/item01/subInfo/03.jpg">
+                        <p>
+                            お菓子をくるりと包みこむ装飾は、ラッピングしたような特別感を演出しています。
+                            <br>小さな果実やお花がほころぶ花柄は、春のガーデンをイメージ。
+                            春の植物のらしいリズム感のある動きがでるよう、葉や枝の動きや配置にこだわりスケッチを重ねました。
+                            重ね使いした時の見え方も意識して仕上げています。
+                            <br>フリルやレースを思わせる形状は、立体的なレリーフが陰影を生み、
+                            絵柄をさらに印象づけることで、シンプルなケーキも華やかに見せてくれます。
+                            凹凸のある面に絵柄を施すのは、職人の技術が光るポイントでもあります。
+                        </p>
+                        <img src="images/item01/subInfo/04.jpg">
+                        <p>
+                            上品な可愛らしさのあるラベンダーと、イギリスのクラッシックな絵付けの器を思わせるインディゴ。
+                            <br>どちらも春夏の季節に合う優しさと爽やかさのある色です。
+                        </p>
+                        <img src="images/item01/subInfo/05.jpg">
+                        <P>
+                            出来上がったお菓子は、自分で楽しむのはもちろん、
+                            器も合わせてギフトにするのもおすすめです。
+                            <br>見た目も、香りも、味わいも魅力的な甘いお菓子たち、
+                            ぜひオードリーと一緒に楽しい時間をお過ごしくださいね。
+                        </P>
+                    </div>
+                </div>
+
+                <div class="right_side">
+                    <div class="product_info">
+                        <h5>audrey cocotte</h5>
+                        <h1>オードリー ココット</h1>
+                        <h2>¥1,210</h2>
+                    </div>
+                    <div class="SNS">
+                        <img src="images/SNS.png" class="link" alt="share"/>
+                    </div>
+                    <hr>
+                    <div class="orderCount">
+                        <label for="orderCount">注文数：　</label>
+                        <input type="number" name="orderCount" list="audrey_cocotte_orderCountList">
+                        <datalist id="audrey_cocotte_orderCountList">
+                            <option value="1"></option>
+                        </datalist>
+                    </div>
+                    <div class="colorType">
+                        <label for="colorType">色：　</label>
+                        <input type="text" name="colorType" list="audrey_cocotte_colorTypeList">
+                        <datalist id="audrey_cocotte_colorTypeList">
+                            <option value="インディゴ"></option>
+                            <option value="ラベンダー"></option>
+                        </datalist>
+                    </div>
+                    <div id="audrey_cocotte_orderBtnId">
+                        <div class="orderBtn">
+                            <p>カートに追加する</p>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <!-- <div class="related_products">
+                    <h2>その他のおすすめの商品</h2>
+                    <ul>
+                        <li><img src="images/item10/relatedItems/コロール.jpg" class="link" alt="related1"/><h3>コロール　3.5寸鉢</h3><h4>¥1,100</h4></li>
+                        <li><img src="images/item10/relatedItems/クルヴァーレ.jpg" class="link" alt="related2"/><h3>クルヴァーレ　4寸鉢</h3><h4>¥1,320</h4></li>
+                        <li><img src="images/item10/relatedItems/メランジェ.jpg" class="link" alt="related3"/><h3>メランジェ　ボールM</h3><h4>¥990</h4></li>
+                    </ul>
+                </div> -->
+            </div>
+            <div id="pave8square">
+                <div class="left_side">
+                    <div class="image_area" class="clearfix">
+                        <div class="small_images">
+                            <img src="images/item02/mainImages/01.jpg" id='item02_p00' alt="img1" class="link" onclick="pave8square_showimg1()">
+                            <img src="images/item02/mainImages/02.jpg" id='item02_p01' alt="img2" class="link" onclick="pave8square_showimg2()">
+                            <img src="images/item02/mainImages/03.jpg" id='item02_p02' alt="img3" class="link" onclick="pave8square_showimg3()">
+                            <img src="images/item02/mainImages/04.jpg" id='item02_p03' alt="img4" class="link" onclick="pave8square_showimg4()">
+                            <img src="images/item02/mainImages/05.jpg" id='item02_p04' alt="img5" class="link" onclick="pave8square_showimg5()">
+                            <img src="images/item02/mainImages/06.jpg" id='item02_p05' alt="img6" class="link" onclick="pave8square_showimg6()">
+                        </div>
+                        <div class="main_image">
+                            <img src="images/item02/mainImages/01.jpg" id="pave8square_area1" alt="img1" />
+                        </div>
+                    </div>
+                    <div class="sub_info">
+                        <div class="spec">
+                            <table class="table">
+                                <tr><th>メーカー品番</th><td>181321 ～ 181323</td></tr>
+                                <tr><th>商品サイズ</th><td>Ｗ80/Ｄ80/Ｈ53/130cc<br>※多少の誤差が生じます。</td></tr>
+                                <tr><th>素材</th><td>生成[White] 陶器(黄土)/白ﾏｯﾄ釉/還元　POTTERY (EARTHENWARE)
+                                    <br>青磁[Celadon] 陶器(黄土)/白化粧・青磁釉/還元　POTTERY (EARTHENWARE)
+                                    <br>トルコ青[Green] 陶器(黄土)/トルコ青釉/還元　POTTERY (EARTHENWARE)
+                                    御本手は青磁のみです。青磁は食洗機NG
+                                    <br>・焼成の度合いや釉薬の性質上、色ムラや焦げ感に個体差が生じます。特にトルコ青は色の濃淡が目立ち、一つ一つ表情が異なります。
+                                    <br>・陶器の性質上、貫入が入っています。使っていくうちに貫入に汚れが入り込みやすい商品です。ご使用の際は水に浸して十分に吸水させてください。食品の水分が貫入に入り込むのを軽減させます。
+                                    <br>・表面に鉄粉が多く出る場合があります。
+                                </td></tr>
+                                <tr><th>原産国</th><td>日本</td></tr>
+                                <tr><th>ブランド</th><td>studio m'</td></tr>
+                            </table>
+                        </div>
+                        <p>
+                            ちょっと特別な日 　
+                            <br>ご近所さんに頂いた釣りたての鯵を新鮮なうちにさばいてお造りにする。
+                            <br>還暦祝いに色鮮やかな具材のちらし寿司をつくる。
+                            <br>時間をかけてふっくらつやつやの黒豆を煮る。
+                            <br>久しぶりに会う親戚に山菜の天ぷらをもてなす。
+                            <br>そんなちょっと特別な日の料理や食卓をイメージしてペイヴを作りました。
+                        </p>
+                        <img src="images/item02/subInfo/01.jpg">
+                        <img src="images/item02/subInfo/02.jpg">
+                        <p>
+                            ペイヴの形状は家紋などにも取り入れられている隅切り角という伝統的な形です。
+                            <br><br>凛とした佇まいは、
+                            盛り付けた料理をキリッと引き締め、上品な表情にしてくれます。
+                            <br>直線だけで構成されたシンプルな角型ですが、随所に小さなこだわりがあります。
+                            各辺はほんのわずかに弧を描くように外側へ膨らませました。
+                            そうすることで硬い印象の中にもおおらかな広がりを感じます。
+                        </p>
+                        <img src="images/item02/subInfo/03.jpg">
+                        <p>
+                            また、高台にすることでテーブルと皿の間に空間ができ、
+                            きちんとした感じと清々しさが生まれ、
+                            特別な日のテーブルや料理と相性のよいフォルムです。
+                            角皿の料理を盛る面は真っ平らではなく中央が少し低くなっています。
+                            <br>汁やソースが広がりにくく、美しい盛り付けができます。 
+                        </p>
+                        <img src="images/item02/subInfo/04.jpg">
+                        <p>
+                            色は生成、青磁、トルコ青の３色展開です。
+                            <br>素材は温かみや柔らかさを感じるような少し黄味がかった土を選びました。
+                        </p>
+                        <img src="images/item02/subInfo/08.jpg">
+                        <p>
+                            6寸皿は主菜用として、4.5寸皿は取り皿や和菓子、３寸小鉢は和え物など、
+                            基本的な和食が盛り付けやすいラインナップです。 　
+                            <br>きちんとした空気感のあるペイヴは、
+                            つくる人それぞれの思いが詰まった料理を受け止め、
+                            特別感をさらに盛り立ててくれます
+                        </p>
+                    </div>
+                </div>
+
+                <div class="right_side">
+                    <div class="product_info">
+                        <h5>pave 8 square bowl</h5>
+                        <h1>ペイヴ　3寸小鉢</h1>
+                        <h2>¥1,100</h2>
+                    </div>
+                    <div class="SNS">
+                        <img src="images/SNS.png" class="link" alt="share"/>
+                    </div>
+                    <hr>
+                    <div class="orderCount">
+                        <label for="orderCount">注文数：　</label>
+                        <input type="number" name="orderCount" list="pave8square_orderCountList">
+                        <datalist id="pave8square_orderCountList">
+                            <option value="1"></option>
+                        </datalist>
+                    </div>
+                    <div class="colorType">
+                        <label for="colorType">色：　</label>
+                        <input type="text" name="colorType" list="pave8square_colorTypeList">
+                        <datalist id="pave8square_colorTypeList">
+                            <option value="トルコ青"></option>
+                            <option value="青磁"></option>
+                            <option value="生成"></option>
+                        </datalist>
+                    </div>
+                    <div id="pave8square_orderBtnId">
+                        <div class="orderBtn">
+                            <p>カートに追加する</p>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <!-- <div class="related_products">
+                    <h2>その他のおすすめの商品</h2>
+                    <ul>
+                        <li><img src="images/item10/relatedItems/コロール.jpg" class="link" alt="related1"/><h3>コロール　3.5寸鉢</h3><h4>¥1,100</h4></li>
+                        <li><img src="images/item10/relatedItems/クルヴァーレ.jpg" class="link" alt="related2"/><h3>クルヴァーレ　4寸鉢</h3><h4>¥1,320</h4></li>
+                        <li><img src="images/item10/relatedItems/メランジェ.jpg" class="link" alt="related3"/><h3>メランジェ　ボールM</h3><h4>¥990</h4></li>
+                    </ul>
+                </div> -->
+            </div>
+            <div id="sazanka12">
+                <div class="left_side">
+                    <div class="image_area" class="clearfix">
+                        <div class="small_images">
+                            <img src="images/item03/mainImages/01.jpg" id='item03_p00' alt="img1" class="link" onclick="sazanka12_showimg1()">
+                            <img src="images/item03/mainImages/02.jpg" id='item03_p01' alt="img2" class="link" onclick="sazanka12_showimg2()">
+                            <img src="images/item03/mainImages/03.jpg" id='item03_p02' alt="img3" class="link" onclick="sazanka12_showimg3()">
+                            <img src="images/item03/mainImages/04.jpg" id='item03_p03' alt="img4" class="link" onclick="sazanka12_showimg4()">
+                            <img src="images/item03/mainImages/05.jpg" id='item03_p04' alt="img5" class="link" onclick="sazanka12_showimg5()">
+                            <img src="images/item03/mainImages/06.jpg" id='item03_p05' alt="img6" class="link" onclick="sazanka12_showimg6()">
+                        </div>
+                        <div class="main_image">
+                            <img src="images/item03/mainImages/01.jpg" id="sazanka12_area1" alt="img1" />
+                        </div>
+                    </div>
+                    <div class="sub_info">
+                        <div class="spec">
+                            <table class="table">
+                                <tr><th>メーカー品番</th><td>181211 ～ 181213</td></tr>
+                                <tr><th>商品サイズ</th><td>φ120/H53/120cc<br>※多少の誤差が生じます。</td></tr>
+                                <tr><th>素材</th><td>白[White]　陶器（志野土）／白マット釉／還元　POTTERY (EARTHENWARE)
+                                    <br>ピンク[Pink]　陶器（志野土）／ピンク釉／還元　POTTERY (EARTHENWARE)
+                                    <br>グリーン[Green]　陶器（志野土）／トルコ青釉／還元　POTTERY (EARTHENWARE)
+                                    <br>御本手は白とピンクです。
+                                    <br>・焼成の度合いや釉薬の性質上、色ムラに個体差が生じます。特にグリーンは色の濃淡が目立ち、一つ一つ表情が異なります。
+                                </td></tr>
+                                <tr><th>原産国</th><td>日本</td></tr>
+                                <tr><th>ブランド</th><td>studio m'</td></tr>
+                            </table>
+                        </div>
+                        <p>
+                            冷たく澄んだ空気の中で
+                            <br>凛とした美しさを纏いながら咲く山茶花。
+                            <br><br>冬の朝、ゆっくりと日が昇る中で鮮やかな色が印象的です。
+                            <br>そんな花のように食卓でも人々の心を惹きつける小鉢ができたら、
+                            <br>という思いで企画を始めました。
+                        </p>
+                        <img src="images/item03/subInfo/01.jpg">
+                        <p>
+                            山茶花は秋から冬にかけて咲き、冬の訪れを告げてくれます。
+                            <br>花びらがひとひらごとに落ちて散っていく様子も情緒的。
+                            <br>幼い頃に歌った童謡「焚き火」の中にも登場し、
+                            <br>どこか懐かしさを感じる花ではないでしょうか。 　
+                        </p>
+                        <img src="images/item03/subInfo/02.jpg">
+                        <p>
+                            サイズは2種類。
+                            <br>4寸小鉢は実物の花の形に近付けることで
+                            <br>ふわっと花開いた可愛らしさを表現しました。
+                        </p>
+                        <!-- <img src="images/item03/subInfo/03.jpg"> -->
+                        <p>
+                            お浸しやひじきの煮物などの副菜、
+                            <br>アイスやヨーグルトなどのデザートカップにお使いいただけます。
+                        </p>
+                        <!-- <img src="images/item03/subInfo/04.jpg">
+                        <p>
+                            2.5寸小付は小さくころんとしていて、
+                            <br>ジャムやソースを何種類か用意したり、
+                            <br>黒豆や薬味入れにおすすめでワンプレートでも重宝します。
+                        </p> -->
+                        <!-- <img src="images/item03/subInfo/05.jpg">
+                        <p>
+                            ひらりと向きを変える花びらは
+                            有機的で柔らかな質感を出すために粘土原型で作っています。
+                            <br>自然な佇まいを目指し、
+                            花びらそれぞれの形や重なり方、枚数にこだわりました。
+                        </p> -->
+                        <img src="images/item03/subInfo/06.jpg">
+                        <p>
+                            自然な佇まいを目指し、
+                            花びらそれぞれの形や重なり方、枚数にこだわりました。
+                            <br>また、高台を無くすことで可憐な印象を強調しています。
+                            花が食卓から咲いているイメージで作り上げました。
+                            <br><br>器単体で存在する時も、料理を盛りつけた時にも華やかに見えるよう
+                            縁にいくほど花びらの動きを大きくしています。
+                            さらに、盛り付ける部分を丸くなめらかにすることで
+                            料理を中心にまとめやすくなり、
+                            余白を生かした盛り付けができます。
+                        </p>
+                        <img src="images/item03/subInfo/07.jpg">
+                        <p>
+                            釉薬は上から順に、
+                            ぽってりとした白と優しいピンク、溜まりが綺麗に見えるグリーン。
+                            白い山茶花は雪がうっすらと積もったような風情ある雰囲気に仕上がりました。
+                            <br>儚げな淡いピンクは愛らしく、温かな気持ちになります。貫入が美しいグリーンは、
+                            差し込む光で色を変える湖の底のように深く艶やかな色です。
+                            食材やシーンに合わせた色選びが楽しめます。 　
+                            <br><br>毎日の食卓もお祝い事にも華やかな演出ができる器です。
+                            テーブルの上に咲く山茶花で秋冬の訪れをゆっくりと感じてみてください。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="right_side">
+                    <div class="product_info">
+                        <h5>sazanka 12 flower-snaped bowl</h5>
+                        <h1>山茶花　4寸小鉢</h1>
+                        <h2>¥1,430</h2>
+                    </div>
+                    <div class="SNS">
+                        <img src="images/SNS.png" class="link" alt="share"/>
+                    </div>
+                    <hr>
+                    <div class="orderCount">
+                        <label for="orderCount">注文数：　</label>
+                        <input type="number" name="orderCount" list="sazanka12_orderCountList">
+                        <datalist id="sazanka12_orderCountList">
+                            <option value="1"></option>
+                        </datalist>
+                    </div>
+                    <div class="colorType">
+                        <label for="colorType">色：　</label>
+                        <input type="text" name="colorType" list="sazanka12_colorTypeList">
+                        <datalist id="sazanka12_colorTypeList">
+                            <option value="グリーン"></option>
+                            <option value="白"></option>
+                            <option value="ピンク"></option>
+                        </datalist>
+                    </div>
+                    <div id="sazanka12_orderBtnId">
+                        <div class="orderBtn">
+                            <p>カートに追加する</p>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <!-- <div class="related_products">
+                    <h2>その他のおすすめの商品</h2>
+                    <ul>
+                        <li><img src="images/item10/relatedItems/コロール.jpg" class="link" alt="related1"/><h3>コロール　3.5寸鉢</h3><h4>¥1,100</h4></li>
+                        <li><img src="images/item10/relatedItems/クルヴァーレ.jpg" class="link" alt="related2"/><h3>クルヴァーレ　4寸鉢</h3><h4>¥1,320</h4></li>
+                        <li><img src="images/item10/relatedItems/メランジェ.jpg" class="link" alt="related3"/><h3>メランジェ　ボールM</h3><h4>¥990</h4></li>
+                    </ul>
+                </div> -->
+            </div>
+            <div id="curvare4">
+                <div class="left_side">
+                    <div class="image_area" class="clearfix">
+                        <div class="small_images">
+                            <img src="images/item04/mainImages/01.jpg" id='item04_p00' alt="img1" class="link" onclick="curvare4_showimg1()">
+                            <img src="images/item04/mainImages/02.jpg" id='item04_p01' alt="img2" class="link" onclick="curvare4_showimg2()">
+                            <img src="images/item04/mainImages/03.jpg" id='item04_p02' alt="img3" class="link" onclick="curvare4_showimg3()">
+                            <img src="images/item04/mainImages/04.jpg" id='item04_p03' alt="img4" class="link" onclick="curvare4_showimg4()">
+                            <img src="images/item04/mainImages/05.jpg" id='item04_p04' alt="img5" class="link" onclick="curvare4_showimg5()">
+                        </div>
+                        <div class="main_image">
+                            <img src="images/item04/mainImages/01.jpg" id="curvare4_area1" alt="img1" />
+                        </div>
+                    </div>
+                    <div class="sub_info">
+                        <div class="spec">
+                            <table class="table">
+                                <tr><th>メーカー品番</th><td>107715 ～ 107735</td></tr>
+                                <tr><th>商品サイズ</th><td>Ｗ123/Ｄ106/Ｈ56/140cc<br>※多少の誤差が生じます。</td></tr>
+                                <tr><th>素材</th><td>乳白　陶器(黒土)・乳白釉／還元
+                                    <br>黒　　陶器(黒土)・虹彩釉／還元
+                                    <br>銀彩　陶器(黒土)・虹彩釉＋銀上絵／還元
+                                    <br>黒・銀彩は電子レンジ使用不可です。
+                                    <br>色幅Strong・色ムラStrong・釉垂・化粧垂は乳白と黒です。
+                                    <br>食洗機NGは銀彩のみ
+                                    <br>
+                                    <br>･黒は食材の成分に反応して、表面が変色することがあります。
+                                    <br>･黒は油染みが残る場合がございます。
+                                </td></tr>
+                                <tr><th>原産国</th><td>日本</td></tr>
+                                <tr><th>ブランド</th><td>sobokai</td></tr>
+                            </table>
+                        </div>
+                        <p>
+                            滑らかな曲線が印象的なクルヴァーレはイタリア語で「カーブ、曲がる、反る」という意味。
+                            <br>中央に料理を盛ると余白の曲面が広く見え、きれいに盛りつけができます。
+                            <br>新たに銀彩が加わりました。
+                        </p>
+                        <img src="images/item04/subInfo/01.jpg">
+                        <p>
+                            料理本なんかを見ていると、綺麗に盛り付けがされている姿にうっとりします。
+                            <br>副菜なども、上手に盛り付けができるようになりたいな・・・と思いますよね。
+                            <br>そんな人にぜひ使ってもらいたいのが「クルヴァーレ」。
+                            <br><br>「クルヴァーレ」はイタリア語で「カーブ、曲がる」という意味。
+                            <br>その名の通り、滑らかな曲線が印象的です。
+                            <br>見る角度によっても形の印象が変わるのが、面白い器だと思います。
+                        </p>
+                        <img src="images/item04/subInfo/02.jpg">
+                        <p>
+                            このカーブが効いていて、中央に盛り付けると自然と綺麗な余白ができるんです。
+                            <br>誰でも盛り付け上手な器。ということですね。
+                            <br>
+                            <br>サイズは4寸鉢、5.5寸鉢の２サイズ。
+                            <br>色は乳白、黒、銀彩の3色展開です。
+                        </p>
+                        <img src="images/item04/subInfo/03.jpg">
+                        <p>
+                            4寸鉢は一汁三菜の小鉢としても使えるサイズ。
+                            <br>5.5寸鉢は2人分の副菜の盛り鉢や、1品を上品に盛り付けるのにオススメ。
+                            <br>
+                            <br>高台皿でもあり、食卓に並べた時に凛とした高級感が漂います。
+                            <br>お店で出てくるような雰囲気を、家庭でも演出できますよ。
+                        </p>
+                        <img src="images/item04/subInfo/04.jpg">
+                        <p>
+                            上品でありながら、とても使いやすい家庭的な器。
+                            <br>ぜひ食卓に取り入れてみてくださいね。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="right_side">
+                    <div class="product_info">
+                        <h5>curvare 4sunbachi</h5>
+                        <h1>クルヴァーレ 4寸鉢</h1>
+                        <h2>¥1,320</h2>
+                    </div>
+                    <div class="SNS">
+                        <img src="images/SNS.png" class="link" alt="share"/>
+                    </div>
+                    <hr>
+                    <div class="orderCount">
+                        <label for="orderCount">注文数：　</label>
+                        <input type="number" name="orderCount" list="curvare4_orderCountList">
+                        <datalist id="curvare4_orderCountList">
+                            <option value="1"></option>
+                        </datalist>
+                    </div>
+                    <div class="colorType">
+                        <label for="colorType">色：　</label>
+                        <input type="text" name="colorType" list="curvare4_colorTypeList">
+                        <datalist id="curvare4_colorTypeList">
+                            <option value="黒"></option>
+                            <option value="乳白"></option>
+                            <option value="銀彩"></option>
+                        </datalist>
+                    </div>
+                    <div id="curvare4_orderBtnId">
+                        <div class="orderBtn">
+                            <p>カートに追加する</p>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <!-- <div class="related_products">
+                    <h2>その他のおすすめの商品</h2>
+                    <ul>
+                        <li><img src="images/item10/relatedItems/コロール.jpg" class="link" alt="related1"/><h3>コロール　3.5寸鉢</h3><h4>¥1,100</h4></li>
+                        <li><img src="images/item10/relatedItems/クルヴァーレ.jpg" class="link" alt="related2"/><h3>クルヴァーレ　4寸鉢</h3><h4>¥1,320</h4></li>
+                        <li><img src="images/item10/relatedItems/メランジェ.jpg" class="link" alt="related3"/><h3>メランジェ　ボールM</h3><h4>¥990</h4></li>
+                    </ul>
+                </div> -->
+            </div>
+            <div id="tromba">
+                <div class="left_side">
+                    <div class="image_area" class="clearfix">
+                        <div class="small_images">
+                            <img src="images/item05/mainImages/01.jpg" id='item05_p00' alt="img1" class="link" onclick="tromba_showimg1()">
+                            <img src="images/item05/mainImages/02.jpg" id='item05_p01' alt="img2" class="link" onclick="tromba_showimg2()">
+                            <img src="images/item05/mainImages/03.jpg" id='item05_p02' alt="img3" class="link" onclick="tromba_showimg3()">
+                            <img src="images/item05/mainImages/04.jpg" id='item05_p03' alt="img4" class="link" onclick="tromba_showimg4()">
+                            <img src="images/item05/mainImages/05.jpg" id='item05_p04' alt="img5" class="link" onclick="tromba_showimg5()">
+                            <img src="images/item05/mainImages/06.jpg" id='item05_p05' alt="img5" class="link" onclick="tromba_showimg6()">
+                        </div>
+                        <div class="main_image">
+                            <img src="images/item05/mainImages/01.jpg" id="tromba_area1" alt="img1" />
+                        </div>
+                    </div>
+                    <div class="sub_info">
+                        <div class="spec">
+                            <table class="table">
+                                <tr><th>メーカー品番</th><td>107742 ～ 107749</td></tr>
+                                <tr><th>商品サイズ</th><td>φ90/H80/140cc<br>※多少の誤差が生じます。</td></tr>
+                                <tr><th>素材</th><td>
+                                    鉄赤　　磁器・鉄赤釉/還元
+                                    <br>鋼　　　磁器・黒釉/還元
+                                    <br>乳白　　磁器・白釉/酸化
+                                    <br>墨貫入　磁器・アイボリー貫入釉+墨入り加工/酸化
+                                    <br>
+                                    <br>銀彩のみ電子レンジ使用不可です。
+                                    <br>色幅・色ムラは鋼・鉄赤・墨貫入です。
+                                    <br>釉垂・化粧垂は鉄赤のみです。
+                                    <br>貫入は墨貫入のみです。
+                                </td></tr>
+                                <tr><th>原産国</th><td>日本</td></tr>
+                                <tr><th>ブランド</th><td>sobokai</td></tr>
+                            </table>
+                        </div>
+                        <p>
+                            トロンバとはイタリア語でトランペットの意味。
+                            <br><br>その名の通り、高台が高く口元が広がっている形状で、小鉢や酒器として使えます。
+                            平鉢よりも盛りつけが簡単で、和え物を中央に置くだけで盛り映えしますし、
+                            食卓に高さが出る事で特別感や高級感がより引き出される器です。
+                            <br><br>和食器ですが磁器素材で扱いやすく、直線的でシャープなデザインのため、
+                            洋食器の風合いも感じられるので、和のシーンだけでなく洋のシーンでも違和感なく使えます。
+                        </p>
+                        <img src="images/item05/subInfo/01.jpg">
+                        <p>
+                            小鉢はいろいろな高さや素材の物と組み合わせて使うのも楽しいですよね。
+                            <br><br>たくさんの種類の小鉢がある中で
+                            トロンバは高さが出せるところがポイントです。
+                            <br>食卓は器によって高低差が出て、影ができたり、料理の高さが変わったり、、、
+                            <br>小さな空間の中で楽しみがたくさん。
+                            <br><br>高台のほんの少しの高さの違いで
+                            高級感や特別感が出て、
+                            <br>料理の印象や見え方が変わって面白いなあ、と思います。
+                            <br><br>まっすぐ長く伸びた影の形も好きです。
+                            上に開いていく形も料理と余白が綺麗に見えていいですね。
+                        </p>
+                        <img src="images/item05/subInfo/02.jpg">
+                        <p>
+                            色は4色。
+                            <br>取り入れやすい乳白、鋼の他に目をひく鉄赤と墨貫入があります。
+                            <br>シンプルな形状が引き立つ色展開です。
+                            <br>落ち着いた感じで使いたい、小物でアクセント使いしたい、などシーンに合わせて選べます。
+                        </p>
+                        <img src="images/item05/subInfo/03.jpg">
+                        <p>
+                            酒器として使うのもかっこいいです。
+                            <br><br>秋の夜長に一人で楽しんだり、お酒を持ち寄ってみんなで歓談しながら飲むのも良いですね。
+                            <br>磁器特有のすっとなめらかな口当たりで気持ち良く飲めますよ。
+                            <br><br>お酒が好きなおじいちゃんおばあちゃんに
+                            敬老の日のプレゼントとして贈るのも良いですね。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="right_side">
+                    <div class="product_info">
+                        <h5>tromba tenkai kobachi</h5>
+                        <h1>トロンバ 天開小鉢</h1>
+                        <h2>¥1,320</h2>
+                    </div>
+                    <div class="SNS">
+                        <img src="images/SNS.png" class="link" alt="share"/>
+                    </div>
+                    <hr>
+                    <div class="orderCount">
+                        <label for="orderCount">注文数：　</label>
+                        <input type="number" name="orderCount" list="tromba_orderCountList">
+                        <datalist id="tromba_orderCountList">
+                            <option value="1"></option>
+                        </datalist>
+                    </div>
+                    <div class="colorType">
+                        <label for="colorType">色：　</label>
+                        <input type="text" name="colorType" list="tromba_colorTypeList">
+                        <datalist id="tromba_colorTypeList">
+                            <option value="乳白"></option>
+                            <option value="鋼"></option>
+                            <option value="銀赤"></option>
+                            <option value="黒墨入"></option>
+                        </datalist>
+                    </div>
+                    <div id="tromba_orderBtnId">
+                        <div class="orderBtn">
+                            <p>カートに追加する</p>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <!-- <div class="related_products">
+                    <h2>その他のおすすめの商品</h2>
+                    <ul>
+                        <li><img src="images/item10/relatedItems/コロール.jpg" class="link" alt="related1"/><h3>コロール　3.5寸鉢</h3><h4>¥1,100</h4></li>
+                        <li><img src="images/item10/relatedItems/クルヴァーレ.jpg" class="link" alt="related2"/><h3>クルヴァーレ　4寸鉢</h3><h4>¥1,320</h4></li>
+                        <li><img src="images/item10/relatedItems/メランジェ.jpg" class="link" alt="related3"/><h3>メランジェ　ボールM</h3><h4>¥990</h4></li>
+                    </ul>
+                </div> -->
+            </div>
+            <div id="ferme11">
+                <div class="left_side">
+                    <div class="image_area" class="clearfix">
+                        <div class="small_images">
+                            <img src="images/item06/mainImages/01.jpg" id='item06_p00' alt="img1" class="link" onclick="ferme11_showimg1()">
+                            <img src="images/item06/mainImages/02.jpg" id='item06_p01' alt="img2" class="link" onclick="ferme11_showimg2()">
+                            <img src="images/item06/mainImages/03.jpg" id='item06_p02' alt="img3" class="link" onclick="ferme11_showimg3()">
+                            <img src="images/item06/mainImages/04.jpg" id='item06_p03' alt="img4" class="link" onclick="ferme11_showimg4()">
+                            <img src="images/item06/mainImages/05.jpg" id='item06_p04' alt="img5" class="link" onclick="ferme11_showimg5()">
+                            <img src="images/item06/mainImages/06.jpg" id='item06_p05' alt="img5" class="link" onclick="ferme11_showimg6()">
+                        </div>
+                        <div class="main_image">
+                            <img src="images/item06/mainImages/01.jpg" id="ferme11_area1" alt="img1" />
+                        </div>
+                    </div>
+                    <div class="sub_info">
+                        <div class="spec">
+                            <table class="table">
+                                <tr><th>メーカー品番</th><td>102954 ～ 102964</td></tr>
+                                <tr><th>商品サイズ</th><td>W110/D110/H53/150cc<br>※多少の誤差が生じます。</td></tr>
+                                <tr><th>素材</th><td>
+                                    白[White]　陶器(赤土)/白化粧・透明釉/酸化　POTTERY (EARTHENWARE)
+                                    <br>アメ[Caramel]　陶器(赤土)/白化粧・色釉/酸化　POTTERY (EARTHENWARE)
+                                </td></tr>
+                                <tr><th>原産国</th><td>日本</td></tr>
+                                <tr><th>ブランド</th><td>studio m'</td></tr>
+                            </table>
+                        </div>
+                        <p>
+                            フェルメはフランス語で農家、という意味。
+                            <br><br>南仏の古い食器をイメージして作られました。
+                            裏印の〝cour de ferme〟は「農家の庭」という意味です。
+                            自分たちで育てた野菜をたっぷり食べるような、おおらかな器に仕上がりました。
+                            <br><br>食器を縁取る形が美しく、料理を引き立てます。
+                            プチボールは副菜やフルーツを入れたり、朝食のヨーグルトにも合います。
+                            小さいながらも存在感があり、食卓の演出に一役買ってくれます。
+                        </p>
+                        <img src="images/item06/subInfo/02.jpeg">
+                        <p>
+                            額縁のように料理を縁取る華やかなレリーフ。
+                            <br><br>ぽってりとした土の厚みと丸みが
+                            南仏のヴィンテージ食器のような雰囲気を醸し出しています。
+                            このおおらかな気分にしてくれるフェルメの持つ雰囲気が好きで、
+                            気分も落ち着く休日に、食事をゆっくりと味わって丁寧に扱いたくなる器なんです。
+                            <br><br>フランス語で”農家”という意味のフェルメ。
+                            裏印の〝cour de ferme〟は「農家の庭」というロゴが中央に入っています。
+                        </p>
+                        <img src="images/item06/subInfo/04.jpeg">
+                            <p>
+                                自分たちで育てた野菜を使った手料理を
+                                家族や友人たちと囲んで賑やかな食事の時間を過ごす。
+                                そんな楽しい風景が思い浮かぶロゴにもあるように、
+                                このフェルメ特有の表情を作り出している理由とは何か？
+                                そこには、素材と釉薬の組み合わせに深いこだわりがありました。
+                            </p>
+                        <img src="images/item06/subInfo/05.jpeg">
+                        <p>
+                            白色とアメ色の２色展開ですが、
+                            <br>素材となる土は、赤色の陶器土（以下、赤土）を使用しています。
+                            <br><br>白とアメ色なのに、なんで赤色の土？？と疑問が浮かびますが…
+                            赤土の上に白化粧土をかけた生地に、
+                            透明の釉薬をかければ白色。アメ色の釉薬をかけるとアメ色に。
+                            <br><br>複数の工程を重ねることで、深みのある色合いやレリーフの陰影をはっきりとさせ、
+                            どこか古めかしさを感じる豊かな表情を作り出しています。
+                        </p>
+                        <img src="images/item06/subInfo/06.jpeg">
+                        <p>
+                            釉薬のかかり方などひとつずつ個性があるので、選ぶのも楽しみの一つ。
+                            美味しい食材が豊富に並ぶ秋冬がよく似合う器です。
+                        </p>
+                        <img src="images/item06/subInfo/08.jpeg">
+                    </div>
+                </div>
+
+                <div class="right_side">
+                    <div class="product_info">
+                        <h5>ferme 11 round bowl</h5>
+                        <h1>フェルメ　プチボール</h1>
+                        <h2>¥1,430</h2>
+                    </div>
+                    <div class="SNS">
+                        <img src="images/SNS.png" class="link" alt="share"/>
+                    </div>
+                    <hr>
+                    <div class="orderCount">
+                        <label for="orderCount">注文数：　</label>
+                        <input type="number" name="orderCount" list="ferme11_orderCountList">
+                        <datalist id="ferme11_orderCountList">
+                            <option value="1"></option>
+                        </datalist>
+                    </div>
+                    <div class="colorType">
+                        <label for="colorType">色：　</label>
+                        <input type="text" name="colorType" list="ferme11_colorTypeList">
+                        <datalist id="ferme11_colorTypeList">
+                            <option value="アメ"></option>
+                            <option value="白"></option>
+                        </datalist>
+                    </div>
+                    <div id="ferme11_orderBtnId">
+                        <div class="orderBtn">
+                            <p>カートに追加する</p>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <!-- <div class="related_products">
+                    <h2>その他のおすすめの商品</h2>
+                    <ul>
+                        <li><img src="images/item10/relatedItems/コロール.jpg" class="link" alt="related1"/><h3>コロール　3.5寸鉢</h3><h4>¥1,100</h4></li>
+                        <li><img src="images/item10/relatedItems/クルヴァーレ.jpg" class="link" alt="related2"/><h3>クルヴァーレ　4寸鉢</h3><h4>¥1,320</h4></li>
+                        <li><img src="images/item10/relatedItems/メランジェ.jpg" class="link" alt="related3"/><h3>メランジェ　ボールM</h3><h4>¥990</h4></li>
+                    </ul>
+                </div> -->
+            </div>
+            <div id="suku_cup">
+                <div class="left_side">
+                    <div class="image_area" class="clearfix">
+                        <div class="small_images">
+                            <img src="images/item07/mainImages/01.jpg" id='item07_p00' alt="img1" class="link" onclick="suku_cup_showimg1()">
+                            <img src="images/item07/mainImages/02.jpg" id='item07_p01' alt="img2" class="link" onclick="suku_cup_showimg2()">
+                            <img src="images/item07/mainImages/03.jpg" id='item07_p02' alt="img3" class="link" onclick="suku_cup_showimg3()">
+                            <img src="images/item07/mainImages/04.jpg" id='item07_p03' alt="img4" class="link" onclick="suku_cup_showimg4()">
+                        </div>
+                        <div class="main_image">
+                            <img src="images/item07/mainImages/01.jpg" id="suku_cup_area1" alt="img1" />
+                        </div>
+                    </div>
+                    <div class="sub_info">
+                        <div class="spec">
+                            <table class="table">
+                                <tr><th>メーカー品番</th><td>107941 ～ 107942</td></tr>
+                                <tr><th>商品サイズ</th><td>Φ88/H70/200cc<br>※多少の誤差が生じます。</td></tr>
+                                <tr><th>素材</th><td>
+                                    (白)　陶器(黒土)+白釉/還元
+                                    <br>(グレー)　陶器(黒土)+黒マット釉/還元
+                                </td></tr>
+                                <tr><th>原産国</th><td>日本</td></tr>
+                                <tr><th>ブランド</th><td>sobokai</td></tr>
+                            </table>
+                        </div>
+                        <p>
+                            スク カップに新たにグレー色が加わりました。
+                            <br>表面を一枚剥いだようなフォルムが美しいカップ。スープ、湯呑みなど幅広く使えます。
+                        </p>
+                        <img src="images/item07/subInfo/01.jpg">
+                        <p>
+                            スクが新しくなって登場しました。
+                            <br><br>グレーの色も加わってシックな雰囲気です。
+                            <br>新しいスクは黒土を使っています。
+                            <br><br>陶器の土の中でも黒土や赤土は鉄分を多く含む土なので
+                            <br>口元に出る表情も豊かです。
+                        </p>
+                        <img src="images/item07/subInfo/02.gif">
+                            <p>
+                                スクのいちばんの特徴は塗り分けです。
+                                <br><br>まっすぐ塗り分けるだけでも大変なので斜めに塗り分けるのはさらに難しいです。
+                                <br>黒い部分は筆を使って撥水を施し、釉薬がかからないようにしています。
+                                <br>そして、『かっぽん掛け』という釉薬の塗り方で釉薬をかけます。
+                                <br><br>かっぽん掛けって…？と、初めて聞いた方も多いと思います。
+                                <br>どんな技法かと言いますと、
+                                口元を下に向けてカップを逆さまに持ち、
+                                カップの中の空気が逃げないように釉薬につけます。
+                                （この状態の時、外側だけ釉薬がかかっています）
+                                そして急激に上に引き上げると
+                                カップの内側にも釉薬が一気に入り込むのだそうです。
+                            </p>
+                        <img src="images/item07/subInfo/03.gif">
+                        <p>
+                            そのため釉薬のムラもできやすく、
+                            <br>渦を巻いているような模様や垂れなど味わいある雰囲気に仕上がります。
+                        </p>
+                        <img src="images/item07/subInfo/04.jpg">
+                        <p>
+                            カップは湯のみ、天開鉢は副菜やスープなどにおすすめで、
+                            <br>デザートカップにも使いやすいです。
+                            <br><br>ゴールデンウィークはもう夏日になるところも出てくるはず、、、
+                            暑いとアイスやかき氷を食べたくなります。
+                            <br><br>ガラスの器も良いけれど、
+                            陶器で食べるかき氷は甘味処みたいでほっこりしますね。
+                            <br>かっこいい黒土と優しい白の斜めの塗り分けが効いているスクで
+                            ちょっと特別な気持ちになれそうです。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="right_side">
+                    <div class="product_info">
+                        <h5>suku cup</h5>
+                        <h1>スクカップ</h1>
+                        <h2>¥1,320</h2>
+                    </div>
+                    <div class="SNS">
+                        <img src="images/SNS.png" class="link" alt="share"/>
+                    </div>
+                    <hr>
+                    <div class="orderCount">
+                        <label for="orderCount">注文数：　</label>
+                        <input type="number" name="orderCount" list="suku_cup_orderCountList">
+                        <datalist id="suku_cup_orderCountList">
+                            <option value="1"></option>
+                        </datalist>
+                    </div>
+                    <div class="colorType">
+                        <label for="colorType">色：　</label>
+                        <input type="text" name="colorType" list="suku_cup_colorTypeList">
+                        <datalist id="suku_cup_colorTypeList">
+                            <option value="白"></option>
+                            <option value="グレー"></option>
+                        </datalist>
+                    </div>
+                    <div id="suku_cup_orderBtnId">
+                        <div class="orderBtn">
+                            <p>カートに追加する</p>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <!-- <div class="related_products">
+                    <h2>その他のおすすめの商品</h2>
+                    <ul>
+                        <li><img src="images/item10/relatedItems/コロール.jpg" class="link" alt="related1"/><h3>コロール　3.5寸鉢</h3><h4>¥1,100</h4></li>
+                        <li><img src="images/item10/relatedItems/クルヴァーレ.jpg" class="link" alt="related2"/><h3>クルヴァーレ　4寸鉢</h3><h4>¥1,320</h4></li>
+                        <li><img src="images/item10/relatedItems/メランジェ.jpg" class="link" alt="related3"/><h3>メランジェ　ボールM</h3><h4>¥990</h4></li>
+                    </ul>
+                </div> -->
+            </div>
+            <div id="placca8">
+                <div class="left_side">
+                    <div class="image_area" class="clearfix">
+                        <div class="small_images">
+                            <img src="images/item08/mainImages/01.jpg" id='item08_p00' alt="img1" class="link" onclick="placca8_showimg1()">
+                            <img src="images/item08/mainImages/02.jpg" id='item08_p01' alt="img2" class="link" onclick="placca8_showimg2()">
+                            <img src="images/item08/mainImages/03.jpg" id='item08_p02' alt="img3" class="link" onclick="placca8_showimg3()">
+                            <img src="images/item08/mainImages/04.jpg" id='item08_p03' alt="img4" class="link" onclick="placca8_showimg4()">
+                            <img src="images/item08/mainImages/05.jpg" id='item08_p04' alt="img3" class="link" onclick="placca8_showimg5()">
+                            <img src="images/item08/mainImages/06.jpg" id='item08_p05' alt="img4" class="link" onclick="placca8_showimg6()">
+                        </div>
+                        <div class="main_image">
+                            <img src="images/item08/mainImages/01.jpg" id="placca8_area1" alt="img1" />
+                        </div>
+                    </div>
+                    <div class="sub_info">
+                        <div class="spec">
+                            <table class="table">
+                                <tr><th>メーカー品番</th><td>105923 ～ 105924</td></tr>
+                                <tr><th>商品サイズ</th><td>W75/D75/H49/140cc<br>※多少の誤差が生じます。</td></tr>
+                                <tr><th>素材</th><td>
+                                    クリーム[White]　磁器・透明釉/酸化　PORCELAIN
+                                    <br>アメ[Caramel]　磁器・アメ釉/酸化　PORCELAIN
+                                    <br>色幅Strong・色ムラStrong・釉垂・化粧垂はアメです。
+                                    <br>・アメは食材の成分に反応して、表面が変色することがあります。
+                                </td></tr>
+                                <tr><th>原産国</th><td>日本</td></tr>
+                                <tr><th>ブランド</th><td>sobokai</td></tr>
+                            </table>
+                        </div>
+                        <p>
+                            「プラッカ」はイタリア語で「プレート」を意味します。
+                            <br>プラッカシリーズはオーブン使用が可能で大小様々なサイズで展開をしています。
+                            <br>重なりもよく収納がしやすいのもポイントです。75スクエアは、深小鉢として使ったり、焼菓子やパンの型としても。
+                        </p>
+                        <img src="images/item08/subInfo/01.jpg">
+                            <p>
+                                サイズ展開が多く、浅いものも深いものもあります。
+                                白はオフホワイトのような、アメは透明感のある優しい色です。
+                                生地には均等な厚みがあり、角が丸くなっていてレトロな雰囲気もあります。
+                            </p>
+                        <img src="images/item08/subInfo/02.jpg">
+                        <p>
+                            大きいものは取り分けて食べるグラタン料理や焼いた魚をマリネするバットとして、
+                            <br>小さめのものは一人分のグラタン料理やお菓子の焼型としておすすめです。
+                        </p>
+                        <img src="images/item08/subInfo/03.jpg">
+                        <p>
+                            スタッキングの良さも魅力で、たくさん重ねても崩れることなくすっきりと収納できます。
+                            <br>家族分くらい重ねてもまったく問題ありません。
+                            <br><br>オーブン料理やお菓子作りには、プラッカがおすすめです。
+                        </p>
+                        <img src="images/item08/subInfo/04.jpg">
+                    </div>
+                </div>
+
+                <div class="right_side">
+                    <div class="product_info">
+                        <h5>placca 8 square ovenware</h5>
+                        <h1>プラッカ 75スクエア深</h1>
+                        <h2>¥550</h2>
+                    </div>
+                    <div class="SNS">
+                        <img src="images/SNS.png" class="link" alt="share"/>
+                    </div>
+                    <hr>
+                    <div class="orderCount">
+                        <label for="orderCount">注文数：　</label>
+                        <input type="number" name="orderCount" list="placca8_orderCountList">
+                        <datalist id="placca8_orderCountList">
+                            <option value="1"></option>
+                        </datalist>
+                    </div>
+                    <div class="colorType">
+                        <label for="colorType">色：　</label>
+                        <input type="text" name="colorType" list="placca8_colorTypeList">
+                        <datalist id="placca8_colorTypeList">
+                            <option value="クリーム"></option>
+                            <option value="アメ"></option>
+                        </datalist>
+                    </div>
+                    <div id="placca8_orderBtnId">
+                        <div class="orderBtn">
+                            <p>カートに追加する</p>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <!-- <div class="related_products">
+                    <h2>その他のおすすめの商品</h2>
+                    <ul>
+                        <li><img src="images/item10/relatedItems/コロール.jpg" class="link" alt="related1"/><h3>コロール　3.5寸鉢</h3><h4>¥1,100</h4></li>
+                        <li><img src="images/item10/relatedItems/クルヴァーレ.jpg" class="link" alt="related2"/><h3>クルヴァーレ　4寸鉢</h3><h4>¥1,320</h4></li>
+                        <li><img src="images/item10/relatedItems/メランジェ.jpg" class="link" alt="related3"/><h3>メランジェ　ボールM</h3><h4>¥990</h4></li>
+                    </ul>
+                </div> -->
+            </div>
+            <div id="tilt5">
+                <div class="left_side">
+                    <div class="image_area" class="clearfix">
+                        <div class="small_images">
+                            <img src="images/item09/mainImages/01.jpg" id='item09_p00' alt="img1" class="link" onclick="tilt5_showimg1()">
+                            <img src="images/item09/mainImages/02.jpg" id='item09_p01' alt="img2" class="link" onclick="tilt5_showimg2()">
+                            <img src="images/item09/mainImages/03.jpg" id='item09_p02' alt="img3" class="link" onclick="tilt5_showimg3()">
+                        </div>
+                        <div class="main_image">
+                            <img src="images/item09/mainImages/01.jpg" id="tilt5_area1" alt="img1" />
+                        </div>
+                    </div>
+                    <div class="sub_info">
+                        <div class="spec">
+                            <table class="table">
+                                <tr><th>メーカー品番</th><td>105451</td></tr>
+                                <tr><th>商品サイズ</th><td>W120/D66/H72<br>※多少の誤差が生じます。</td></tr>
+                                <tr><th>素材</th><td>
+                                    白磁・透明釉/還元
+                                </td></tr>
+                                <tr><th>原産国</th><td>日本</td></tr>
+                                <tr><th>ブランド</th><td>sobokai</td></tr>
+                            </table>
+                        </div>
+                        <p>
+                            ティルトは英語で「傾いた」という意味。
+                            <br><br>器がくっと傾いたような印象の強さと、立体的ながら曲線のないシャープなフォルムが特徴の小付です。
+                            角鉢を斜めにカットすることで高さに差ができ、余白が大きくなるように見えることで料理を引き立てます。
+                            <br><br>複数並べることで独特のフォルムがより一層活きてきます。
+                            ※在庫がなくなり次第、仕様変更となります。
+                        </p>
+                        <img src="images/item09/subInfo/01.jpg">
+                            <p>
+                                丸い形の器が多い中、直線を極めたこちらの器。
+                                <br>器がたくさん並んだ中でもすぐに目を引きます。
+                            </p>
+                        <img src="images/item09/subInfo/02.jpg">
+                        <p>
+                            白磁でシャープな器はスタイリッシュな雰囲気にぴったり。
+                            <br>小鉢として使っても、プレートと組み合わせても、いくつか並べて置いても、、
+                        </p>
+                        <img src="images/item09/subInfo/03.jpg">
+                        <img src="images/item09/subInfo/04.jpg">
+                        <p>
+                            これ１つでオシャレさんになった気分です。
+                            <br>ちなみに名前の由来にもなっている「傾いた」口の部分のおかげで、
+                            <br>お料理を盛り付けたときに余白ができます。
+                            <br>なので、盛り付けた姿もなんだか余裕があってかっこいい。
+                        </p>
+                        <img src="images/item09/subInfo/05.jpg">
+                        <img src="images/item09/subInfo/07.jpg">
+                        <p>
+                            小さなサイズのボウルだけど、この器の影響力は絶大です。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="right_side">
+                    <div class="product_info">
+                        <h5>tilt 5"bowl</h5>
+                        <h1>ティルト 5"ボウル</h1>
+                        <h2>¥1,265</h2>
+                    </div>
+                    <div class="SNS">
+                        <img src="images/SNS.png" class="link" alt="share"/>
+                    </div>
+                    <hr>
+                    <div class="orderCount">
+                        <label for="orderCount">注文数：　</label>
+                        <input type="number" name="orderCount" list="tilt5_orderCountList">
+                        <datalist id="tilt5_orderCountList">
+                            <option value="1"></option>
+                        </datalist>
+                    </div>
+                    <div class="colorType">
+                        <label for="colorType">色：　</label>
+                        <input type="text" name="colorType" list="tilt5_colorTypeList">
+                        <datalist id="tilt5_colorTypeList">
+                            <option value="白"></option>
+                        </datalist>
+                    </div>
+                    <div id="tilt5_orderBtnId">
+                        <div class="orderBtn">
+                            <p>カートに追加する</p>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <!-- <div class="related_products">
+                    <h2>その他のおすすめの商品</h2>
+                    <ul>
+                        <li><img src="images/item10/relatedItems/コロール.jpg" class="link" alt="related1"/><h3>コロール　3.5寸鉢</h3><h4>¥1,100</h4></li>
+                        <li><img src="images/item10/relatedItems/クルヴァーレ.jpg" class="link" alt="related2"/><h3>クルヴァーレ　4寸鉢</h3><h4>¥1,320</h4></li>
+                        <li><img src="images/item10/relatedItems/メランジェ.jpg" class="link" alt="related3"/><h3>メランジェ　ボールM</h3><h4>¥990</h4></li>
+                    </ul>
+                </div> -->
+            </div>
+            <div id="flap3sun">
+                <div class="left_side">
+                    <div class="image_area" class="clearfix">
+                        <div class="small_images">
+                            <img src="images/item10/mainImages/01.jpg" id='item10_p00' alt="img1" class="link" onclick="flap3sun_showimg1()">
+                            <img src="images/item10/mainImages/02.jpg" id='item10_p01' alt="img2" class="link" onclick="flap3sun_showimg2()">
+                            <img src="images/item10/mainImages/03.jpg" id='item10_p02' alt="img3" class="link" onclick="flap3sun_showimg3()">
+                            <img src="images/item10/mainImages/04.jpg" id='item10_p03' alt="img4" class="link" onclick="flap3sun_showimg4()">
+                            <img src="images/item10/mainImages/05.jpg" id='item10_p04' alt="img5" class="link" onclick="flap3sun_showimg5()">
+                            <img src="images/item10/mainImages/06.jpg" id='item10_p05' alt="img6" class="link" onclick="flap3sun_showimg6()">
+                        </div>
+                        <div class="main_image">
+                            <img src="images/item10/mainImages/01.jpg" id="flap3sun_area1" alt="img1" />
+                        </div>
+                    </div>
+                    <div class="sub_info">
+                        <div class="spec">
+                            <table class="table">
+                                <tr><th>メーカー品番</th><td>105241 ～ 105243</td></tr>
+                                <tr><th>商品サイズ</th><td>W102/D102/H55<br>※多少の誤差が生じます。</td></tr>
+                                <tr><th>素材</th><td>粉引|陶器(赤土)・白化粧+透明釉/酸化<br>ピンク|陶器(赤土)・白化粧+ピンク灰釉/酸化<br>ブルー|陶器(赤土)・白化粧+藍釉/酸化</td></tr>
+                                <tr><th>原産国</th><td>日本</td></tr>
+                                <tr><th>ブランド</th><td>sobakai</td></tr>
+                            </table>
+                        </div>
+                        <p>
+                            フラップは英語で「ひらひらした」という意味。
+                            <br>花そのものを模したような、ふわりとした印象の小鉢。
+                            <br>大きくひらひらした縁が特徴で、本物の花のようなたおやかさがあります。
+                            <br>カラーバリエーションも鮮やかで、優しい白色の粉引、温かい日差しを思わせるようなピンク、鮮やかで涼しげなブルー、の3色。食卓を華やかに演出します。
+                        </p>
+                        <img src="images/item10/subInfo/01.jpg">
+                        <p>
+                            Flap（フラップ）は英語で　"はためく"　"ひらひらする"　という意味。
+                            <br>その名の通り、器の縁はスカートやカーテンの裾のようにひらひらとした形状をしています。
+                            <br>色がきれいで、テーブルに花が咲いたようにも見え、たくさん並ぶと華やかです。
+                        </p>
+                        <img src="images/item10/subInfo/02.jpg">
+                        <img src="images/item10/subInfo/03.jpg">
+                        <p>
+                            色は白、ピンク、ブルーの3色展開。
+                            <br>赤土の上に白い化粧を施し、それぞれの色の釉薬を掛けているので、とても発色が良いです。
+                            <br>白土ではなく赤土を使うことで、器の縁にほんのり生地の色が浮かび上がり、奥行きのある色にしました。
+                            <br>ブルーはこんな風に貫入があらかじめ入っていることがあります。透明感があって涼やかで、美しいです。
+                        </p>
+                        <img src="images/item10/subInfo/04.jpg">
+                        <p>
+                            少し見にくいですが、器の裏には「sob.」のロゴが入っています。※ロゴの出かたには個体差がございます
+                            <br>(マルミツポテリの飲食店様向けブランド、sobokaiの略です)
+                        </p>
+                        <img src="images/item10/subInfo/05.jpg">
+                        <P>
+                            夏野菜のピクルスやナスの揚げ浸し、冷やしトマトなど、鮮やかな色の野菜との相性もばっちりです。
+                            <br>これからだんだんと暑くなり、体力を消耗しやすい季節に近づいてきます。
+                            <br>このフラップに季節の野菜を盛り付けて、夏を迎えてみませんか？
+                        </P>
+                    </div>
+                </div>
+
+                <div class="right_side">
+                    <div class="product_info">
+                        <h5>flap 3sun kobachi</h5>
+                        <h1>フラップ 3寸小鉢</h1>
+                        <h2>¥1,210</h2>
+                    </div>
+                    <div class="SNS">
+                        <img src="images/SNS.png" class="link" alt="share"/>
+                    </div>
+                    <hr>
+                    <div class="orderCount">
+                        <label for="orderCount">注文数：　</label>
+                        <input type="number" name="orderCount" list="flap3sun_orderCountList">
+                        <datalist id="flap3sun_orderCountList">
+                            <option value="1"></option>
+                        </datalist>
+                    </div>
+                    <div class="colorType">
+                        <label for="colorType">色：　</label>
+                        <input type="text" name="colorType" list="flap3sun_colorTypeList">
+                        <datalist id="flap3sun_colorTypeList">
+                            <option value="ブルー"></option>
+                            <option value="粉引"></option>
+                            <option value="ピンク"></option>
+                        </datalist>
+                    </div>
+                    <div id="flap3sun_orderBtnId">
+                        <div class="orderBtn">
+                            <p>カートに追加する</p>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <!-- <div class="related_products">
+                    <h2>その他のおすすめの商品</h2>
+                    <ul>
+                        <li><img src="images/item10/relatedItems/コロール.jpg" class="link" alt="related1"/><h3>コロール　3.5寸鉢</h3><h4>¥1,100</h4></li>
+                        <li><img src="images/item10/relatedItems/クルヴァーレ.jpg" class="link" alt="related2"/><h3>クルヴァーレ　4寸鉢</h3><h4>¥1,320</h4></li>
+                        <li><img src="images/item10/relatedItems/メランジェ.jpg" class="link" alt="related3"/><h3>メランジェ　ボールM</h3><h4>¥990</h4></li>
+                    </ul>
+                </div> -->
+            </div>
+            <div id="greco6">
+                <div class="left_side">
+                    <div class="image_area" class="clearfix">
+                        <div class="small_images">
+                            <img src="images/item11/mainImages/01.jpg" id='item11_p00' alt="img1" class="link" onclick="greco6_showimg1()">
+                            <img src="images/item11/mainImages/02.jpg" id='item11_p01' alt="img2" class="link" onclick="greco6_showimg2()">
+                            <img src="images/item11/mainImages/03.jpg" id='item11_p02' alt="img3" class="link" onclick="greco6_showimg3()">
+                            <img src="images/item11/mainImages/04.jpg" id='item11_p03' alt="img4" class="link" onclick="greco6_showimg4()">
+                        </div>
+                        <div class="main_image">
+                            <img src="images/item11/mainImages/01.jpg" id="greco6_area1" alt="img1" />
+                        </div>
+                    </div>
+                    <div class="sub_info">
+                        <div class="spec">
+                            <table class="table">
+                                <tr><th>メーカー品番</th><td>105352</td></tr>
+                                <tr><th>商品サイズ</th><td>Φ87/H75/200cc<br>※多少の誤差が生じます。</td></tr>
+                                <tr><th>素材</th><td>
+                                    白磁・透明釉/還元</td></tr>
+                                <tr><th>原産国</th><td>日本</td></tr>
+                                <tr><th>ブランド</th><td>sobakai</td></tr>
+                            </table>
+                        </div>
+                        <p>
+                            グレコとイタリアの伝統品種の白ふどうの名前。
+                            <br><br>澄んだ白磁でできているので、ドリンクや食べ物本来の色が器の中で美しく映えます。
+                            <br>シュガーや調味料を入れるのに適した2オンスのプチカップから12オンスのドリンク用のカップまで
+                            サイズバリエーションが豊富です。<br><br>冷たい飲み物やデザートのカップ、また小鉢として。
+                        </p>
+                        <img src="images/item11/subInfo/01.jpg">
+                        <p>
+                            「グレコ」とはイタリア語でギリシャ人を意味します。
+                            <br>そんな名前の白ぶどうの伝統品種からこの器には名前がついたそうです。
+                        </p>
+                        <img src="images/item11/subInfo/02.jpg">
+                        <p>
+                            ピカピカ輝く白磁の色がなんとも眩しい。
+                            <br>料理の色も映えるので、いろんなものを入れて使いたくなる。
+                            そして、スーッと視線を下げていくと、下の方に入った削りの装飾。
+                        </p>
+                        <img src="images/item11/subInfo/03.jpg">
+                        <p>
+                            シンプルな装飾ってシンプルだからこそ洗練されていないと、美しく見えません。
+                            <br><br>削りの幅や高さなんかもきっとすごく考えて作られたものなんだろうな。
+                            と思うとやっぱりすごい器なんじゃないかと思います。
+                            それだけじゃなくてこの器、削ったところで少し光が透けています。
+                        </p>
+                        <img src="images/item11/subInfo/04.jpg">
+                        <P>
+                            中に入れたドリンクに少し光が漏れて、芸術的な仕上がり。
+                        </P>
+                        <img src="images/item11/subInfo/08.jpg">
+                        <p>
+                            小鉢として副菜を入れたり、スープなんかを入れるのにもちょうどいい大きさです。
+                            <br>飲み物も、食事も、スイーツもなんでも似合っちゃう「グレコ」はやっぱり芸術的な器です。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="right_side">
+                    <div class="product_info">
+                        <h5>greco 6oz</h5>
+                        <h1>グレコ 6オンス</h1>
+                        <h2>¥825</h2>
+                    </div>
+                    <div class="SNS">
+                        <img src="images/SNS.png" class="link" alt="share"/>
+                    </div>
+                    <hr>
+                    <div class="orderCount">
+                        <label for="orderCount">注文数：　</label>
+                        <input type="number" name="orderCount" list="greco6_orderCountList">
+                        <datalist id="greco6_orderCountList">
+                            <option value="1"></option>
+                        </datalist>
+                    </div>
+                    <div class="colorType">
+                        <label for="colorType">色：　</label>
+                        <input type="text" name="colorType" list="greco6_colorTypeList">
+                        <datalist id="greco6_colorTypeList">
+                            <option value="白"></option>
+                        </datalist>
+                    </div>
+                    <div id="greco6_orderBtnId">
+                        <div class="orderBtn">
+                            <p>カートに追加する</p>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <!-- <div class="related_products">
+                    <h2>その他のおすすめの商品</h2>
+                    <ul>
+                        <li><img src="images/item10/relatedItems/コロール.jpg" class="link" alt="related1"/><h3>コロール　3.5寸鉢</h3><h4>¥1,100</h4></li>
+                        <li><img src="images/item10/relatedItems/クルヴァーレ.jpg" class="link" alt="related2"/><h3>クルヴァーレ　4寸鉢</h3><h4>¥1,320</h4></li>
+                        <li><img src="images/item10/relatedItems/メランジェ.jpg" class="link" alt="related3"/><h3>メランジェ　ボールM</h3><h4>¥990</h4></li>
+                    </ul>
+                </div> -->
+            </div>
+            <div id="pile_naga">
+                <div class="left_side">
+                    <div class="image_area" class="clearfix">
+                        <div class="small_images">
+                            <img src="images/item12/mainImages/01.jpg" id='item12_p00' alt="img1" class="link" onclick="pile_naga_showimg1()">
+                            <img src="images/item12/mainImages/02.jpg" id='item12_p01' alt="img1" class="link" onclick="pile_naga_showimg2()">
+                            <img src="images/item12/mainImages/03.jpeg" id='item12_p02' alt="img1" class="link" onclick="pile_naga_showimg3()">
+                            <img src="images/item12/mainImages/04.jpg" id='item12_p03' alt="img1" class="link" onclick="pile_naga_showimg4()">
+                        </div>
+                        <div class="main_image">
+                            <img src="images/item12/mainImages/01.jpg" id="pile_naga_area1" alt="img1" />
+                        </div>
+                    </div>
+                    <div class="sub_info">
+                        <div class="spec">
+                            <table class="table">
+                                <tr><th>メーカー品番</th><td>105005</td></tr>
+                                <tr><th>商品サイズ</th><td>W131/D65/H33/160cc<br>※多少の誤差が生じます。</td></tr>
+                                <tr><th>素材</th><td>
+                                    白磁・透明釉/還元</td></tr>
+                                <tr><th>原産国</th><td>日本</td></tr>
+                                <tr><th>ブランド</th><td>sobakai</td></tr>
+                            </table>
+                        </div>
+                        <p>
+                            パイルは英語で重ねるという意味。
+                            <br><br>器同士を重ねることを前提に作られた、
+                            ディッシュ・オン・ディッシュが奇麗に収まるシリーズです。
+                            特にプレート類はスタッキングに優れており、
+                            10枚重ねても高さは10cm以下に収まります。
+                            <br><br>プレートにプレートを乗せたり、長皿に小付を合わせたりと、
+                            組み合わせても主張しすぎないボリュームが出て料理が映えます。
+                        </p>
+                        <img src="images/item12/subInfo/05.jpg">
+                        <p>
+                            パイルのシリーズはサイズや形が様々。
+                            <br><br>小付け、長小付けはお重と組み合わせて使うこともできるのでとっても便利です。
+                            <br>ミニ茶碗蒸しも出来るし、これなら汁気のあるおかずも平気で入れられます。
+                        </p>
+                        <img src="images/item12/subInfo/06.jpeg">
+                        <p>
+                            小付けはすっきり重ねて収納できませんが、
+                            <br>パーティーで事前準備をしておきたいとき、盛り付けた状態で重ねられるので便利ですよ。
+                        </p>
+                        <img src="images/item12/subInfo/07.jpg">
+                        <p>
+                            付出皿と小付けを組み合わせることもできます。
+                            <br>シリーズ同士の組み合わせやすさも魅力です。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="right_side">
+                    <div class="product_info">
+                        <h5>pile nagakoduke</h5>
+                        <h1>パイル 長小付</h1>
+                        <h2>¥1,045</h2>
+                    </div>
+                    <div class="SNS">
+                        <img src="images/SNS.png" class="link" alt="share"/>
+                    </div>
+                    <hr>
+                    <div class="orderCount">
+                        <label for="orderCount">注文数：　</label>
+                        <input type="number" name="orderCount" list="pile_naga_orderCountList">
+                        <datalist id="pile_naga_orderCountList">
+                            <option value="1"></option>
+                        </datalist>
+                    </div>
+                    <div class="colorType">
+                        <label for="colorType">色：　</label>
+                        <input type="text" name="colorType" list="pile_naga_colorTypeList">
+                        <datalist id="pile_naga_colorTypeList">
+                            <option value="白"></option>
+                        </datalist>
+                    </div>
+                    <div id="pile_naga_orderBtnId">
+                        <div class="orderBtn">
+                            <p>カートに追加する</p>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <!-- <div class="related_products">
+                    <h2>その他のおすすめの商品</h2>
+                    <ul>
+                        <li><img src="images/item10/relatedItems/コロール.jpg" class="link" alt="related1"/><h3>コロール　3.5寸鉢</h3><h4>¥1,100</h4></li>
+                        <li><img src="images/item10/relatedItems/クルヴァーレ.jpg" class="link" alt="related2"/><h3>クルヴァーレ　4寸鉢</h3><h4>¥1,320</h4></li>
+                        <li><img src="images/item10/relatedItems/メランジェ.jpg" class="link" alt="related3"/><h3>メランジェ　ボールM</h3><h4>¥990</h4></li>
+                    </ul>
+                </div> -->
+            </div>
+            <div id="menu_cocotte">
+                <div class="left_side">
+                    <div class="image_area" class="clearfix">
+                        <div class="small_images">
+                            <img src="images/item13/mainImages/01.jpg" id='item13_p00' alt="img1" class="link" onclick="menu_cocotte_showimg1()">
+                            <img src="images/item13/mainImages/02.jpg" id='item13_p01' alt="img2" class="link" onclick="menu_cocotte_showimg2()">
+                            <img src="images/item13/mainImages/03.jpg" id='item13_p02' alt="img3" class="link" onclick="menu_cocotte_showimg3()">
+                        </div>
+                        <div class="main_image">
+                            <img src="images/item13/mainImages/01.jpg" id="menu_cocotte_area1" alt="img1" />
+                        </div>
+                    </div>
+                    <div class="sub_info">
+                        <div class="spec">
+                            <table class="table">
+                                <tr><th>メーカー品番</th><td>106207</td></tr>
+                                <tr><th>商品サイズ</th><td>Φ85/H45/160cc<br>※多少の誤差が生じます。</td></tr>
+                                <tr><th>素材</th><td>
+                                    陶器(赤土)/白化粧・透明釉/還元
+                                    <br>※素材の特性上、縁などに焦げ目があります。
+                                    <br>※色に個体差があります。</td></tr>
+                                <tr><th>原産国</th><td>日本</td></tr>
+                                <tr><th>ブランド</th><td>studio m'</td></tr>
+                            </table>
+                        </div>
+                        <p>
+                            ムニュはフランス語で「メニュー、献立表」という意味。
+                            <br><br>ビストロで使用するようなイメージで、温かみのある白色が特徴のシリーズ。
+                            <br>オーブンに対応しているのでオーブン料理にも。
+                            <br>ココットはプリン型やマフィン型としても使えます。
+                        </p>
+                        <img src="images/item13/subInfo/01.jpg">
+                        <p>
+                            ムニュの素材は粉引きと言って、基本となる生地に白化粧土をかけ、
+                            その上に透明釉を掛けて焼いたものです。
+                            <br><br>デザインを考える時、磁器や半磁器の素材感とは違い、
+                            <br>ぽってりとした印象の器にするためこの仕様を採用しました。
+                            <br><br>当然の事ですが、温度や湿度など気候の変化や、窯内での置き場所による火の当たり方の違いなど、
+                            <br>焼成時の条件は常に変化します。
+                            <br><br>そのため、同じような行程で作業をしても、焼き上がりの色にバラつきが出ることがあります。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="right_side">
+                    <div class="product_info">
+                        <h5>menu cocotte</h5>
+                        <h1>ムニュ ココット</h1>
+                        <h2>¥968</h2>
+                    </div>
+                    <div class="SNS">
+                        <img src="images/SNS.png" class="link" alt="share"/>
+                    </div>
+                    <hr>
+                    <div class="orderCount">
+                        <label for="orderCount">注文数：　</label>
+                        <input type="number" name="orderCount" list="menu_cocotte_orderCountList">
+                        <datalist id="menu_cocotte_orderCountList">
+                            <option value="1"></option>
+                        </datalist>
+                    </div>
+                    <div class="colorType">
+                        <label for="colorType">色：　</label>
+                        <input type="text" name="colorType" list="menu_cocotte_colorTypeList">
+                        <datalist id="menu_cocotte_colorTypeList">
+                            <option value="白"></option>
+                        </datalist>
+                    </div>
+                    <div id="menu_cocotte_orderBtnId">
+                        <div class="orderBtn">
+                            <p>カートに追加する</p>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <!-- <div class="related_products">
+                    <h2>その他のおすすめの商品</h2>
+                    <ul>
+                        <li><img src="images/item10/relatedItems/コロール.jpg" class="link" alt="related1"/><h3>コロール　3.5寸鉢</h3><h4>¥1,100</h4></li>
+                        <li><img src="images/item10/relatedItems/クルヴァーレ.jpg" class="link" alt="related2"/><h3>クルヴァーレ　4寸鉢</h3><h4>¥1,320</h4></li>
+                        <li><img src="images/item10/relatedItems/メランジェ.jpg" class="link" alt="related3"/><h3>メランジェ　ボールM</h3><h4>¥990</h4></li>
+                    </ul>
+                </div> -->
+            </div>
+            <div id="yummy_cup">
+                <div class="left_side">
+                    <div class="image_area" class="clearfix">
+                        <div class="small_images">
+                            <img src="images/item14/mainImages/01.jpg" id='item14_p00' alt="img1" class="link" onclick="yummy_cup_showimg1()">
+                            <img src="images/item14/mainImages/02.jpg" id='item14_p01' alt="img2" class="link" onclick="yummy_cup_showimg2()">
+                            <img src="images/item14/mainImages/03.jpg" id='item14_p02' alt="img3" class="link" onclick="yummy_cup_showimg3()">
+                            <img src="images/item14/mainImages/04.jpg" id='item14_p03' alt="img1" class="link" onclick="yummy_cup_showimg4()">
+                            <img src="images/item14/mainImages/05.jpg" id='item14_p04' alt="img2" class="link" onclick="yummy_cup_showimg5()">
+                            <img src="images/item14/mainImages/06.jpg" id='item14_p05' alt="img3" class="link" onclick="yummy_cup_showimg6()">
+                        </div>
+                        <div class="main_image">
+                            <img src="images/item14/mainImages/01.jpg" id="yummy_cup_area1" alt="img1" />
+                        </div>
+                    </div>
+                    <div class="sub_info">
+                        <div class="spec">
+                            <table class="table">
+                                <tr><th>メーカー品番</th><td>106451 ~ 106454</td></tr>
+                                <tr><th>商品サイズ</th><td>Φ80/H50/150cc<br>※多少の誤差が生じます。</td></tr>
+                                <tr><th>素材</th><td>
+                                    磁器/透明釉(白)、色釉(レモン、オレンジ、ミント)/酸化
+                                </td></tr>
+                                <tr><th>原産国</th><td>日本</td></tr>
+                                <tr><th>ブランド</th><td>studio m'</td></tr>
+                            </table>
+                        </div>
+                        <p>
+                            見ているだけで元気が出るような楽しいカラー。
+                            <br>深さと大きさ、色にこだわりました。
+                            <br><br>見ているだけで、大人も楽しくなる子供食器です。
+                            <br>男女関係なく、使えるカラー展開。
+                            出産祝いや入園祝いの贈りものとしても人気です。
+                            <br><br>カップはエアロポルトやプティルパなど、別のシリーズの仕切り皿と合わせても◎。
+                        </p>
+                        <img src="images/item14/subInfo/01.jpg">
+                        <p>
+                            英語で「yummy（ヤンミー）」とは幼児が「おいしい」という意味で使う言葉。
+                            <br><br>フォーマルな場で大人が使う言葉ではありませんが、ごはんを「まんま」と言ったり、
+                            クルマを「ぶーぶー」といったりするのと同じ感覚で、おいしいことを「ヤンミー」と言うそうです。
+                            <br><br>その言葉をそのまま名前にした商品がこちら。
+                        </p>
+                        <img src="images/item14/subInfo/02.jpg">
+                        <p>
+                            お皿やカップにはニコッと笑って舌なめずりをしている可愛らしい絵柄が施されていて、
+                            <br>子供が「おいしい」って喜んでいる姿が想像できます。
+                            <br>子供を魅了するヤンミーは、専用の化粧箱に入れたギフトセットも人気です。
+                            <br>子供が楽しそうにごはんを食べていれば、お母さんやお父さんだって食事は楽しくなります。
+                        </p>
+                        <img src="images/item14/subInfo/03.jpg">
+                        <img src="images/item14/subInfo/04.jpg">
+                        <p>
+                            みなさんも「yummy」のある生活を！
+                        </p>
+                    </div>
+                </div>
+
+                <div class="right_side">
+                    <div class="product_info">
+                        <h5>yummy cup</h5>
+                        <h1>ヤンミー カップ</h1>
+                        <h2>¥660</h2>
+                    </div>
+                    <div class="SNS">
+                        <img src="images/SNS.png" class="link" alt="share"/>
+                    </div>
+                    <hr>
+                    <div class="orderCount">
+                        <label for="orderCount">注文数：　</label>
+                        <input type="number" name="orderCount" list="yummy_cup_orderCountList">
+                        <datalist id="yummy_cup_orderCountList">
+                            <option value="1"></option>
+                        </datalist>
+                    </div>
+                    <div class="colorType">
+                        <label for="colorType">色：　</label>
+                        <input type="text" name="colorType" list="yummy_cup_colorTypeList">
+                        <datalist id="yummy_cup_colorTypeList">
+                            <option value="白"></option>
+                            <option value="オレンジ"></option>
+                            <option value="レモン"></option>
+                            <option value="ミント"></option>
+                        </datalist>
+                    </div>
+                    <div id="yummy_cup_orderBtnId">
+                        <div class="orderBtn">
+                            <p>カートに追加する</p>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <!-- <div class="related_products">
+                    <h2>その他のおすすめの商品</h2>
+                    <ul>
+                        <li><img src="images/item10/relatedItems/コロール.jpg" class="link" alt="related1"/><h3>コロール　3.5寸鉢</h3><h4>¥1,100</h4></li>
+                        <li><img src="images/item10/relatedItems/クルヴァーレ.jpg" class="link" alt="related2"/><h3>クルヴァーレ　4寸鉢</h3><h4>¥1,320</h4></li>
+                        <li><img src="images/item10/relatedItems/メランジェ.jpg" class="link" alt="related3"/><h3>メランジェ　ボールM</h3><h4>¥990</h4></li>
+                    </ul>
+                </div> -->
+            </div>
+            <div id="numbers5">
+                <div class="left_side">
+                    <div class="image_area" class="clearfix">
+                        <div class="small_images">
+                            <img src="images/item15/mainImages/01.jpg" id='item15_p00' alt="img1" class="link" onclick="numbers5_showimg1()">
+                            <img src="images/item15/mainImages/02.jpg" id='item15_p01' alt="img2" class="link" onclick="numbers5_showimg2()">
+                            <img src="images/item15/mainImages/03.jpg" id='item15_p02' alt="img3" class="link" onclick="numbers5_showimg3()">
+                            <img src="images/item15/mainImages/04.jpg" id='item15_p03' alt="img1" class="link" onclick="numbers5_showimg4()">
+                        </div>
+                        <div class="main_image">
+                            <img src="images/item15/mainImages/01.jpg" id="numbers5_area1" alt="img1" />
+                        </div>
+                    </div>
+                    <div class="sub_info">
+                        <div class="spec">
+                            <table class="table">
+                                <tr><th>メーカー品番</th><td>17505</td></tr>
+                                <tr><th>商品サイズ</th><td>W117/D102/H50/190cc<br>※多少の誤差が生じます。</td></tr>
+                                <tr><th>素材</th><td>
+                                    磁器/銅版絵付+透明釉/還元
+                                </td></tr>
+                                <tr><th>原産国</th><td>日本</td></tr>
+                                <tr><th>ブランド</th><td>studio m'</td></tr>
+                            </table>
+                        </div>
+                        <p>
+                            調理道具として人気のナンバーズシリーズ。No.5は小さめのボール。
+                            <br><br>手作りのドレッシングやディップなどをこのボールで作って、
+                            そのまま食卓に出しても映えますね。
+                            小さめのボールは、ありそうでなかなかないもの。
+                            No.6、No.7と一緒のセットで、贈り物としても喜ばれます。
+                        </p>
+                        <img src="images/item15/subInfo/01.jpg">
+                        <p>
+                            "料理を作ること"も食事の一部と考えているマルミツポテリには、
+                            <br>器以外にもさまざまなキッチンツールがあります。
+                        </p>
+                        <img src="images/item15/subInfo/02.jpg">
+                        <p>
+                            その中でも人気があるのは、ナンバーズのボール。
+                            <br>実は20年以上前から販売しているロングセラー商品なんです。
+                        </p>
+                        <img src="images/item15/subInfo/03.jpg">
+                        <p>
+                            側面には5、６、７の数字が入っていて、内側にはレシピが書いてあります。
+                            <br>このロゴは、銅版転写とよばれる技法で施されており、職人が一つ一つ貼り付けているんですよ。
+                            <br>はっきりとした色ですが、少しぼんやり見えるのがまた魅力です。
+                        </p>
+                        <img src="images/item15/subInfo/04.jpg">
+                        <p>
+                            素材は磁器。(吸水性がありません！)
+                            <br>香りの強いニンニクやショウガ、オリーブオイルやごま油を長時間入れてもへっちゃらです。
+                            <br>におい移りしないので、余ったドレッシングをそのまま冷蔵庫で冷やしてもＯＫ。
+                            <br>片口のデザインで、ドレッシングやソースを注ぐのも簡単ですよ。
+                        </p>
+                        <img src="images/item15/subInfo/05.jpg">
+                        <p>
+                            見た目のかわいらしさと実用性の高さから、贈り物にも人気のアイテムで、
+                            <br>専用の箱に入れたギフトセットのご用意もありますよ。
+                            <br><br>>みなさんも、毎日の料理をより楽しくしてくれる、このナンバーズボールを使ってみませんか？
+                        </p>
+                    </div>
+                </div>
+
+                <div class="right_side">
+                    <div class="product_info">
+                        <h5>numbers no.5 sho bowl</h5>
+                        <h1>ナンバーズ No.5 小ボール</h1>
+                        <h2>¥1,155</h2>
+                    </div>
+                    <div class="SNS">
+                        <img src="images/SNS.png" class="link" alt="share"/>
+                    </div>
+                    <hr>
+                    <div class="orderCount">
+                        <label for="orderCount">注文数：　</label>
+                        <input type="number" name="orderCount" list="numbers5_orderCountList">
+                        <datalist id="numbers5_orderCountList">
+                            <option value="1"></option>
+                        </datalist>
+                    </div>
+                    <div class="colorType">
+                        <label for="colorType">色：　</label>
+                        <input type="text" name="colorType" list="numbers5_colorTypeList">
+                        <datalist id="numbers5_colorTypeList">
+                            <option value="白"></option>
+                        </datalist>
+                    </div>
+                    <div id="numbers5_orderBtnId">
+                        <div class="orderBtn">
+                            <p>カートに追加する</p>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <!-- <div class="related_products">
+                    <h2>その他のおすすめの商品</h2>
+                    <ul>
+                        <li><img src="images/item10/relatedItems/コロール.jpg" class="link" alt="related1"/><h3>コロール　3.5寸鉢</h3><h4>¥1,100</h4></li>
+                        <li><img src="images/item10/relatedItems/クルヴァーレ.jpg" class="link" alt="related2"/><h3>クルヴァーレ　4寸鉢</h3><h4>¥1,320</h4></li>
+                        <li><img src="images/item10/relatedItems/メランジェ.jpg" class="link" alt="related3"/><h3>メランジェ　ボールM</h3><h4>¥990</h4></li>
+                    </ul>
+                </div> -->
+            </div>
+            <div id="cocotte">
+                <div class="left_side">
+                    <div class="image_area" class="clearfix">
+                        <div class="small_images">
+                            <img src="images/item16/mainImages/01.jpg" id='item16_p00' alt="img1" class="link" onclick="cocotte_showimg1()">
+                            <img src="images/item16/mainImages/02.jpg" id='item16_p01' alt="img2" class="link" onclick="cocotte_showimg2()">
+                            <img src="images/item16/mainImages/03.jpg" id='item16_p02' alt="img3" class="link" onclick="cocotte_showimg3()">
+                            <img src="images/item16/mainImages/04.jpg" id='item16_p03' alt="img1" class="link" onclick="cocotte_showimg4()">
+                            <img src="images/item16/mainImages/05.jpeg" id='item16_p04' alt="img1" class="link" onclick="cocotte_showimg5()">
+                            <img src="images/item16/mainImages/06.jpg" id='item16_p05' alt="img1" class="link" onclick="cocotte_showimg6()">
+                        </div>
+                        <div class="main_image">
+                            <img src="images/item16/mainImages/01.jpg" id="cocotte_area1" alt="img1" />
+                        </div>
+                    </div>
+                    <div class="sub_info">
+                        <div class="spec">
+                            <table class="table">
+                                <tr><th>メーカー品番</th><td>16671 ~ 166703</td></tr>
+                                <tr><th>商品サイズ</th><td>Φ90/H48/170cc<br>※多少の誤差が生じます。</td></tr>
+                                <tr><th>素材</th><td>
+                                    ホワイト　半磁器/透明釉/酸化
+                                    <br>ホワイト以外　半磁器/色釉・透明釉/酸化
+                                    <br>色幅・色ムラはインディゴ・オリーブ・キャラメルです。
+                                </td></tr>
+                                <tr><th>原産国</th><td>日本</td></tr>
+                                <tr><th>ブランド</th><td>studio m'</td></tr>
+                            </table>
+                        </div>
+                        <p>
+                            スタジオ エムの初めてのオーブンウエア。
+                            <br><br>半磁器で柔らかい質感があります。今では大変人気の定番商品です。
+                            <br>小さなサラダボールや小付けとして使ったり、耐熱食器なので、
+                            <br>マフィンやプチケーキを焼いて器ごとプレゼントしても喜ばれます。
+                            <br>お好きな色の組み合わせを楽しんで。
+                            <br><br>30周年を期にインディゴ、オリーブ、キャラメル色が加わり、新たに裏印を大人っぽくデザイン変更させました。
+                        </p>
+                        <img src="images/item16/subInfo/01.jpeg">
+                        <p>
+                            スタジオエムではおなじみの商品。ロングセラーアイテムで長年多くの人にご愛顧頂いてきました。
+                            <br>そのココット、実は去年リニューアルしていたの知っていますか？
+                            <br>まずは、カラーバリエーションが増えました。
+                        </p>
+                        <img src="images/item16/subInfo/02.jpg">
+                        <p>
+                            定番のカラーに、インディゴ、キャラメル、オリーブが仲間入り。
+                            <br>そして、裏印のデザインが一新。
+                        </p>
+                        <img src="images/item16/subInfo/03.jpg">
+                        <p>
+                            このココット、オーブンにも使えるので、お菓子を焼いたりするのにぴったり。
+                            <br>焼きあがった見た目も可愛くて、そのままプレゼントにしても喜ばれます。
+                        </p>
+                        <img src="images/item16/subInfo/04.jpeg">
+                        <p>
+                            他にも、器にリンゴのコンポートを詰めて、パイで包んで焼いたら簡単アップルパイも作れちゃいます。
+                        </p>
+                        <img src="images/item16/subInfo/05.jpeg">
+                        <p>
+                            とにかく、可愛くて使い勝手がいいココット。
+                            <br>ロングセラーには、やっぱりロングセラーの理由があります。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="right_side">
+                    <div class="product_info">
+                        <h5>cocotte</h5>
+                        <h1>ココット</h1>
+                        <h2>¥825</h2>
+                    </div>
+                    <div class="SNS">
+                        <img src="images/SNS.png" class="link" alt="share"/>
+                    </div>
+                    <hr>
+                    <div class="orderCount">
+                        <label for="orderCount">注文数：　</label>
+                        <input type="number" name="orderCount" list="cocotte_orderCountList">
+                        <datalist id="cocotte_orderCountList">
+                            <option value="1"></option>
+                        </datalist>
+                    </div>
+                    <div class="colorType">
+                        <label for="colorType">色：　</label>
+                        <input type="text" name="colorType" list="cocotte_colorTypeList">
+                        <datalist id="cocotte_colorTypeList">
+                            <option value="ライム"></option>
+                            <option value="カフェオレ"></option>
+                            <option value="ラズベリー"></option>
+                            <option value="ソーダ"></option>
+                            <option value="キャラメル"></option>
+                            <option value="インディゴ"></option>
+                            <option value="オレンジ"></option>
+                            <option value="オリーブ"></option>
+                            <option value="ホワイト"></option>
+                        </datalist>
+                    </div>
+                    <div id="cocotte_orderBtnId">
+                        <div class="orderBtn">
+                            <p>カートに追加する</p>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <!-- <div class="related_products">
+                    <h2>その他のおすすめの商品</h2>
+                    <ul>
+                        <li><img src="images/item10/relatedItems/コロール.jpg" class="link" alt="related1"/><h3>コロール　3.5寸鉢</h3><h4>¥1,100</h4></li>
+                        <li><img src="images/item10/relatedItems/クルヴァーレ.jpg" class="link" alt="related2"/><h3>クルヴァーレ　4寸鉢</h3><h4>¥1,320</h4></li>
+                        <li><img src="images/item10/relatedItems/メランジェ.jpg" class="link" alt="related3"/><h3>メランジェ　ボールM</h3><h4>¥990</h4></li>
+                    </ul>
+                </div> -->
+            </div>
+        </div>
+        <div class="gallery"><!--アイテム一覧ページ-->
+            <div id="galleryId">
+                <section id="Gallery-section">
+                    <ul class="Gallery">
+                        <!--画像リンクと商品名、値段はあとで更新する-->
+                        <li><img src="images/item01/mainImages/01.jpg" id="img_item01"><h3>オードリー ココット</h3><h4>¥1,210</h4></li>
+                        <li><img src="images/item02/mainImages/01.jpg" id="img_item02"><h3>ペイヴ　3寸小鉢</h3><h4>¥1,100</h4></li>
+                        <li><img src="images/item03/mainImages/01.jpg" id="img_item03"><h3>山茶花　4寸小鉢</h3><h4>¥1,430</h4></li>
+                        <li><img src="images/item04/mainImages/01.jpg" id="img_item04"><h3>クルヴァーレ4寸鉢</h3><h4>¥1,320</h4></li>
+                        <li><img src="images/item05/mainImages/01.jpg" id="img_item05"><h3>トロンバ　天開小鉢</h3><h4>¥1,430</h4></li>
+                        <li><img src="images/item06/mainImages/01.jpg" id="img_item06"><h3>フェルメ　プチボール</h3><h4>¥1,430</h4></li>
+                        <li><img src="images/item07/mainImages/01.jpg" id="img_item07"><h3>スク　カップ</h3><h4>¥1,320</h4></li>
+                        <li><img src="images/item08/mainImages/01.jpg" id="img_item08"><h3>プラッカ 75スクエア深</h3><h4>¥550</h4></li>
+                        <li><img src="images/item09/mainImages/01.jpg" id="img_item09"><h3>ティルト 5"ボウル</h3><h4>¥1,265</h4></li>
+                        <li><img src="images/item10/mainImages/01.jpg" id="img_item10"><h3>フラップ 3寸小鉢</h3><h4>¥1,210</h4></li>
+                        <li><img src="images/item11/mainImages/01.jpg" id="img_item11"><h3>グレコ 6オンス</h3><h4>¥825</h4></li>
+                        <li><img src="images/item12/mainImages/01.jpg" id="img_item12"><h3>パイル 長寸付</h3><h4>¥1,045</h4></li>
+                        <li><img src="images/item13/mainImages/01.jpg" id="img_item13"><h3>ムニュ ココット</h3><h4>¥968</h4></li>
+                        <li><img src="images/item14/mainImages/01.jpg" id="img_item14"><h3>ヤンミー　カップ</h3><h4>¥660</h4></li>
+                        <li><img src="images/item15/mainImages/01.jpg" id="img_item15"><h3>ナンバーズ No.5 小ボール</h3><h4>¥1,155</h4></li>
+                        <li><img src="images/item16/mainImages/01.jpg" id="img_item16"><h3>ココット</h3><h4>¥968</h4></li>
+                    </ul>
+                </section>
+            </div>
+        </div>
+        <div id="cargoPage">
+            <h3>Cart</h3>
+            <table>
+                <tr>
+                    <th class="deleteBtnCell">削除</th>
+                    <th>商品内容</th>
+                    <th class="howManyItems">数量</th>
+                    <th class="cargoItemPrice">価格</th>
+                </tr>
+
+                <!--表の中で存在を消す（display: collapse）にするサンプル-->
+                <tr class="noExistance">
+                    <td><img src="images/delete.png" class="deleteFromCargo"></td>
+                    <td><img src="images/item01/mainImages/01.jpg" ><h3>存在しないオードリー ココット</h3><h4>¥1,210</h4></td>
+                    <td>1</td>
+                    <td>¥1,210</td>
+                </tr>
+                <!--表の中で存在を消す（display: collapse）にするサンプル-->
+
+                <tr id="cargo_audrey_cocotte" class="noExistance">
+                    <td class="deleteBtn_pos"><img src="images/delete.png" id="deleteBtn_item01" class="deleteFromCargo"></td>
+                    <td class="cargoItemContent"><img src="images/item01/mainImages/01.jpg"><p>オードリー ココット</p></td>
+                    <td>1</td>
+                    <td>¥1,210</td>
+                </tr>
+                <tr id="cargo_pave8square" class="noExistance">
+                    <td class="deleteBtn_pos"><img src="images/delete.png" id="deleteBtn_item02" class="deleteFromCargo"></td>
+                    <td class="cargoItemContent"><img src="images/item02/mainImages/01.jpg"><p>ペイヴ　3寸小鉢</p></td>
+                    <td>1</td>
+                    <td>¥1,100</td>
+                </tr>
+                <tr id="cargo_sazanka12" class="noExistance">
+                    <td class="deleteBtn_pos"><img src="images/delete.png" id="deleteBtn_item03" class="deleteFromCargo"></td>
+                    <td class="cargoItemContent"><img src="images/item03/mainImages/01.jpg"><p>山茶花　4寸小鉢</p></td>
+                    <td>1</td>
+                    <td>¥1,430</td>
+                </tr>
+                <tr id="cargo_curvare4" class="noExistance">
+                    <td class="deleteBtn_pos"><img src="images/delete.png" id="deleteBtn_item04" class="deleteFromCargo"></td>
+                    <td class="cargoItemContent"><img src="images/item04/mainImages/01.jpg"><p>クルヴァーレ4寸鉢</p></td>
+                    <td>1</td>
+                    <td>¥1,320</td>
+                </tr>
+                <tr id="cargo_tromba" class="noExistance">
+                    <td class="deleteBtn_pos"><img src="images/delete.png" id="deleteBtn_item05" class="deleteFromCargo"></td>
+                    <td class="cargoItemContent"><img src="images/item05/mainImages/01.jpg"><p>トロンバ　天開小鉢</p></td>
+                    <td>1</td>
+                    <td>¥1,430</td>
+                </tr>
+                <tr id="cargo_ferme11" class="noExistance">
+                    <td class="deleteBtn_pos"><img src="images/delete.png" id="deleteBtn_item06" class="deleteFromCargo"></td>
+                    <td class="cargoItemContent"><img src="images/item06/mainImages/01.jpg"><p>フェルメ　プチボール</p></td>
+                    <td>1</td>
+                    <td>¥1,430</td>
+                </tr>
+                <tr id="cargo_suku_cup" class="noExistance">
+                    <td class="deleteBtn_pos"><img src="images/delete.png" id="deleteBtn_item07" class="deleteFromCargo"></td>
+                    <td class="cargoItemContent"><img src="images/item07/mainImages/01.jpg"><p>スク　カップ</p></td>
+                    <td>1</td>
+                    <td>¥1,320</td>
+                </tr>
+                <tr id="cargo_placca8" class="noExistance">
+                    <td class="deleteBtn_pos"><img src="images/delete.png" id="deleteBtn_item08" class="deleteFromCargo"></td>
+                    <td class="cargoItemContent"><img src="images/item08/mainImages/01.jpg"><p>プラッカ 75スクエア深</p></td>
+                    <td>1</td>
+                    <td>¥550</td>
+                </tr>
+                <tr id="cargo_tilt5" class="noExistance">
+                    <td class="deleteBtn_pos"><img src="images/delete.png" id="deleteBtn_item09" class="deleteFromCargo"></td>
+                    <td class="cargoItemContent"><img src="images/item09/mainImages/01.jpg"><p>ティルト 5"ボウル</p></td>
+                    <td>1</td>
+                    <td>¥1,265</td>
+                </tr>
+                <tr id="cargo_flap3sun" class="noExistance">
+                    <td class="deleteBtn_pos"><img src="images/delete.png" id="deleteBtn_item10" class="deleteFromCargo"></td>
+                    <td class="cargoItemContent"><img src="images/item10/mainImages/01.jpg"><p>フラップ 3寸小鉢</p></td>
+                    <td>1</td>
+                    <td>¥1,210</td>
+                </tr>
+                <tr id="cargo_greco6" class="noExistance">
+                    <td class="deleteBtn_pos"><img src="images/delete.png" id="deleteBtn_item11" class="deleteFromCargo"></td>
+                    <td class="cargoItemContent"><img src="images/item11/mainImages/01.jpg"><p>グレコ 6オンス</p></td>
+                    <td>1</td>
+                    <td>¥825</td>
+                </tr>
+                <tr id="cargo_pile_naga" class="noExistance">
+                    <td class="deleteBtn_pos"><img src="images/delete.png" id="deleteBtn_item12" class="deleteFromCargo"></td>
+                    <td class="cargoItemContent"><img src="images/item12/mainImages/01.jpg"><p>パイル 長寸付</p></td>
+                    <td>1</td>
+                    <td>¥1,045</td>
+                </tr>
+                <tr id="cargo_menu_cocotte" class="noExistance">
+                    <td class="deleteBtn_pos"><img src="images/delete.png" id="deleteBtn_item13" class="deleteFromCargo"></td>
+                    <td class="cargoItemContent"><img src="images/item13/mainImages/01.jpg"><p>ムニュ ココット</p></td>
+                    <td>1</td>
+                    <td>¥968</td>
+                </tr>
+                <tr id="cargo_yummy_cup" class="noExistance">
+                    <td class="deleteBtn_pos"><img src="images/delete.png" id="deleteBtn_item14" class="deleteFromCargo"></td>
+                    <td class="cargoItemContent"><img src="images/item14/mainImages/01.jpg"><p>ヤンミー　カップ</p></td>
+                    <td>1</td>
+                    <td>¥660</td>
+                </tr>
+                <tr id="cargo_numbers5" class="noExistance">
+                    <td class="deleteBtn_pos"><img src="images/delete.png" id="deleteBtn_item15" class="deleteFromCargo"></td>
+                    <td class="cargoItemContent"><img src="images/item15/mainImages/01.jpg"><p>ナンバーズ No.5 小ボール</p></td>
+                    <td>1</td>
+                    <td>¥1,155</td>
+                </tr>
+                <tr id="cargo_cocotte" class="noExistance">
+                    <td class="deleteBtn_pos"><img src="images/delete.png" id="deleteBtn_item16" class="deleteFromCargo"></td>
+                    <td class="cargoItemContent"><img src="images/item16/mainImages/01.jpg"><p>ココット</p></td>
+                    <td>1</td>
+                    <td>¥968</td>
+                </tr>
+            </table>
+            <div id="paymentBtnId">
+                <div class="orderBtn">
+                    <p>決済する</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
+<!-- <footer>
+    <small>system plannning lab</small>
+</footer> -->
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const loadEl = document.querySelector('#load');
+        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+        // // The Firebase SDK is initialized and available here!
+        //
+        // firebase.auth().onAuthStateChanged(user => { });
+        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
+        // firebase.firestore().doc('/foo/bar').get().then(() => { });
+        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
+        // firebase.messaging().requestPermission().then(() => { });
+        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
+        // firebase.analytics(); // call to activate
+        // firebase.analytics().logEvent('tutorial_completed');
+        // firebase.performance(); // call to activate
+        //
+        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+      });
+
+    </script>
+    <!--画像入れ替え（htmlから呼び出されるjavascript内の関数はここ=body内に入れる。。）-->
+    <script type="text/javascript">
+      function audrey_cocotte_showimg1(){document.getElementById("audrey_cocotte_area1").src = "images/item01/mainImages/01.jpg";}
+      function audrey_cocotte_showimg2(){document.getElementById("audrey_cocotte_area1").src = "images/item01/mainImages/02.jpg";}
+      function audrey_cocotte_showimg3(){document.getElementById("audrey_cocotte_area1").src = "images/item01/mainImages/03.jpg";}
+      function audrey_cocotte_showimg4(){document.getElementById("audrey_cocotte_area1").src = "images/item01/mainImages/04.jpg";}
+      function audrey_cocotte_showimg5(){document.getElementById("audrey_cocotte_area1").src = "images/item01/mainImages/05.jpg";}
+      function audrey_cocotte_showimg6(){document.getElementById("audrey_cocotte_area1").src = "images/item01/mainImages/06.jpg";}
+
+      function pave8square_showimg1(){document.getElementById("pave8square_area1").src = "images/item02/mainImages/01.jpg";}
+      function pave8square_showimg2(){document.getElementById("pave8square_area1").src = "images/item02/mainImages/02.jpg";}
+      function pave8square_showimg3(){document.getElementById("pave8square_area1").src = "images/item02/mainImages/03.jpg";}
+      function pave8square_showimg4(){document.getElementById("pave8square_area1").src = "images/item02/mainImages/04.jpg";}
+      function pave8square_showimg5(){document.getElementById("pave8square_area1").src = "images/item02/mainImages/05.jpg";}
+      function pave8square_showimg6(){document.getElementById("pave8square_area1").src = "images/item02/mainImages/06.jpg";}
+
+      function sazanka12_showimg1(){document.getElementById("sazanka12_area1").src = "images/item03/mainImages/01.jpg";}
+      function sazanka12_showimg2(){document.getElementById("sazanka12_area1").src = "images/item03/mainImages/02.jpg";}
+      function sazanka12_showimg3(){document.getElementById("sazanka12_area1").src = "images/item03/mainImages/03.jpg";}
+      function sazanka12_showimg4(){document.getElementById("sazanka12_area1").src = "images/item03/mainImages/04.jpg";}
+      function sazanka12_showimg5(){document.getElementById("sazanka12_area1").src = "images/item03/mainImages/05.jpg";}
+      function sazanka12_showimg6(){document.getElementById("sazanka12_area1").src = "images/item03/mainImages/06.jpg";}
+
+      function curvare4_showimg1(){document.getElementById("curvare4_area1").src = "images/item04/mainImages/01.jpg";}
+      function curvare4_showimg2(){document.getElementById("curvare4_area1").src = "images/item04/mainImages/02.jpg";}
+      function curvare4_showimg3(){document.getElementById("curvare4_area1").src = "images/item04/mainImages/03.jpg";}
+      function curvare4_showimg4(){document.getElementById("curvare4_area1").src = "images/item04/mainImages/04.jpg";}
+      function curvare4_showimg5(){document.getElementById("curvare4_area1").src = "images/item04/mainImages/05.jpg";}
+
+      function tromba_showimg1(){document.getElementById("tromba_area1").src = "images/item05/mainImages/01.jpg";}
+      function tromba_showimg2(){document.getElementById("tromba_area1").src = "images/item05/mainImages/02.jpg";}
+      function tromba_showimg3(){document.getElementById("tromba_area1").src = "images/item05/mainImages/03.jpg";}
+      function tromba_showimg4(){document.getElementById("tromba_area1").src = "images/item05/mainImages/04.jpg";}
+      function tromba_showimg5(){document.getElementById("tromba_area1").src = "images/item05/mainImages/05.jpg";}
+      function tromba_showimg6(){document.getElementById("tromba_area1").src = "images/item05/mainImages/06.jpg";}
+
+      function ferme11_showimg1(){document.getElementById("ferme11_area1").src = "images/item06/mainImages/01.jpg";}
+      function ferme11_showimg2(){document.getElementById("ferme11_area1").src = "images/item06/mainImages/02.jpg";}
+      function ferme11_showimg3(){document.getElementById("ferme11_area1").src = "images/item06/mainImages/03.jpg";}
+      function ferme11_showimg4(){document.getElementById("ferme11_area1").src = "images/item06/mainImages/04.jpg";}
+      function ferme11_showimg5(){document.getElementById("ferme11_area1").src = "images/item06/mainImages/05.jpg";}
+      function ferme11_showimg6(){document.getElementById("ferme11_area1").src = "images/item06/mainImages/06.jpg";}
+
+      function suku_cup_showimg1(){document.getElementById("suku_cup_area1").src = "images/item07/mainImages/01.jpg";}
+      function suku_cup_showimg2(){document.getElementById("suku_cup_area1").src = "images/item07/mainImages/02.jpg";}
+      function suku_cup_showimg3(){document.getElementById("suku_cup_area1").src = "images/item07/mainImages/03.jpg";}
+      function suku_cup_showimg4(){document.getElementById("suku_cup_area1").src = "images/item07/mainImages/04.jpg";}
+
+      function placca8_showimg1(){document.getElementById("placca8_area1").src = "images/item08/mainImages/01.jpg";}
+      function placca8_showimg2(){document.getElementById("placca8_area1").src = "images/item08/mainImages/02.jpg";}
+      function placca8_showimg3(){document.getElementById("placca8_area1").src = "images/item08/mainImages/03.jpg";}
+      function placca8_showimg4(){document.getElementById("placca8_area1").src = "images/item08/mainImages/04.jpg";}
+      function placca8_showimg5(){document.getElementById("placca8_area1").src = "images/item08/mainImages/05.jpg";}
+      function placca8_showimg6(){document.getElementById("placca8_area1").src = "images/item08/mainImages/06.jpg";}
+
+      function tilt5_showimg1(){document.getElementById("tilt5_area1").src = "images/item09/mainImages/01.jpg";}
+      function tilt5_showimg2(){document.getElementById("tilt5_area1").src = "images/item09/mainImages/02.jpg";}
+      function tilt5_showimg3(){document.getElementById("tilt5_area1").src = "images/item09/mainImages/03.jpg";}
+
+      function flap3sun_showimg1(){document.getElementById("flap3sun_area1").src = "images/item10/mainImages/01.jpg";}
+      function flap3sun_showimg2(){document.getElementById("flap3sun_area1").src = "images/item10/mainImages/02.jpg";}
+      function flap3sun_showimg3(){document.getElementById("flap3sun_area1").src = "images/item10/mainImages/03.jpg";}
+      function flap3sun_showimg4(){document.getElementById("flap3sun_area1").src = "images/item10/mainImages/04.jpg";}
+      function flap3sun_showimg5(){document.getElementById("flap3sun_area1").src = "images/item10/mainImages/05.jpg";}
+      function flap3sun_showimg6(){document.getElementById("flap3sun_area1").src = "images/item10/mainImages/06.jpg";}
+
+      function greco6_showimg1(){document.getElementById("greco6_area1").src = "images/item11/mainImages/01.jpg";}
+      function greco6_showimg2(){document.getElementById("greco6_area1").src = "images/item11/mainImages/02.jpg";}
+      function greco6_showimg3(){document.getElementById("greco6_area1").src = "images/item11/mainImages/03.jpg";}
+      function greco6_showimg4(){document.getElementById("greco6_area1").src = "images/item11/mainImages/04.jpg";}
+
+      function pile_naga_showimg1(){document.getElementById("pile_naga_area1").src = "images/item12/mainImages/01.jpg";}
+      function pile_naga_showimg2(){document.getElementById("pile_naga_area1").src = "images/item12/mainImages/02.jpg";}
+      function pile_naga_showimg3(){document.getElementById("pile_naga_area1").src = "images/item12/mainImages/03.jpeg";}
+      function pile_naga_showimg4(){document.getElementById("pile_naga_area1").src = "images/item12/mainImages/04.jpg";}
+
+      function menu_cocotte_showimg1(){document.getElementById("menu_cocotte_area1").src = "images/item13/mainImages/01.jpg";}
+      function menu_cocotte_showimg2(){document.getElementById("menu_cocotte_area1").src = "images/item13/mainImages/02.jpg";}
+      function menu_cocotte_showimg3(){document.getElementById("menu_cocotte_area1").src = "images/item13/mainImages/03.jpg";}
+
+      function yummy_cup_showimg1(){document.getElementById("yummy_cup_area1").src = "images/item14/mainImages/01.jpg";}
+      function yummy_cup_showimg2(){document.getElementById("yummy_cup_area1").src = "images/item14/mainImages/02.jpg";}
+      function yummy_cup_showimg3(){document.getElementById("yummy_cup_area1").src = "images/item14/mainImages/03.jpg";}
+      function yummy_cup_showimg4(){document.getElementById("yummy_cup_area1").src = "images/item14/mainImages/04.jpg";}
+      function yummy_cup_showimg5(){document.getElementById("yummy_cup_area1").src = "images/item14/mainImages/05.jpg";}
+      function yummy_cup_showimg6(){document.getElementById("yummy_cup_area1").src = "images/item14/mainImages/06.jpg";}
+
+      function numbers5_showimg1(){document.getElementById("numbers5_area1").src = "images/item15/mainImages/01.jpg";}
+      function numbers5_showimg2(){document.getElementById("numbers5_area1").src = "images/item15/mainImages/02.jpg";}
+      function numbers5_showimg3(){document.getElementById("numbers5_area1").src = "images/item15/mainImages/03.jpg";}
+      function numbers5_showimg4(){document.getElementById("numbers5_area1").src = "images/item15/mainImages/04.jpg";}
+
+      function cocotte_showimg1(){document.getElementById("cocotte_area1").src = "images/item16/mainImages/01.jpg";}
+      function cocotte_showimg2(){document.getElementById("cocotte_area1").src = "images/item16/mainImages/02.jpg";}
+      function cocotte_showimg3(){document.getElementById("cocotte_area1").src = "images/item16/mainImages/03.jpg";}
+      function cocotte_showimg4(){document.getElementById("cocotte_area1").src = "images/item16/mainImages/04.jpg";}
+      function cocotte_showimg5(){document.getElementById("cocotte_area1").src = "images/item16/mainImages/05.jpeg";}
+      function cocotte_showimg6(){document.getElementById("cocotte_area1").src = "images/item16/mainImages/06.jpg";}
+    </script>
+
+    <!--p5はここで書く。-->
+    <script>
+      // function setup(){
+      //   console.log("p5 setup starts");
+      //   frameRate(30);
+      // }
+      // function draw(){
+      //   //スクロール量の取得テスト→できた
+      //   var y=window.pageYOffset;
+      //   console.log("y="+ y);
+      // }
+    </script>
+
+  </body>
+
+  <!--ここからfirebaseとのインタラクションを行う。-->
+  <script type="module">
+    //<script>と書けばそのあとはjavascript。"module"としたのはexportするときのため。
+
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-analytics.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+  
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyBS140kYu9SCZRFf49Ie3CdK0V_zRjk8Oo",
+      authDomain: "myfirstfirebase-21c7a.firebaseapp.com",
+      databaseURL: "https://myfirstfirebase-21c7a-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "myfirstfirebase-21c7a",
+      storageBucket: "myfirstfirebase-21c7a.appspot.com",
+      messagingSenderId: "188775071603",
+      appId: "1:188775071603:web:fba94009c7432a27a04f06",
+      measurementId: "G-250QQZ95GZ"
+    };
+  
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+
+    var db=firebase.database();
+
+    var myUserID =1;
+
+    var orderedFlag=0;//決済ボタンが押されるとフラグが立つ。
+    //フラグが立っている状態でもう一度商品詳細ページへ入るとフラグが0に戻り、'ordered'が0に戻る。
+
+    //nullUserCreate();//空のユーザーデータを人数分だけセットしておきたい場合に使う。既にある場合はこの行をコメントアウト。
+    //プログラム作成中にデータセットの構造を変更するために用いる。
+    //プロパティの種類を更新したいときもこれを使う。
+
+    //myUserIDを決めるためにチェックする。
+    db.ref('users/').once('value',(snapshot) =>{
+        var data=snapshot.val();//JSONでusersのデータを全て取得。
+        console.log(data);
+        for(var i=1; i<6; i++){//user番号i番のjoinedプロパティをチェックする
+          if(data[i]['joined']==0){//もしjoinedプロパティが空ならば  上位パス指定で読み込みすればJSON形式で読み込みができる
+            myUserID=i;
+            console.log('myUserID => '+ i);//myUserIDをiにする
+            console.log('チェックループ抜けた');
+            break;
+          }
+        }
+      newUserVisit(myUserID);//自分用の空データセットを作成する。
+    });
+    
+    function nullUserCreate(){//空のユーザーデータをセットしておきたい場合に使う
+      db.ref('users/5').set({//ここのusers/XのXの部分をユーザー番号分だけやり直す。
+        joined: 0,
+        currentPage: {itemNumber: 0, seeingPhoto: 0, scroll: 0},
+        // p_item: {itemNumber: 0, inTimeStamp: 0, outTimeStamp: 0, interestPoint: 0},//ひとつ前のページ
+        // pp_item: {itemNumber: 0, inTimeStamp: 0, outTimeStamp: 0, interestPoint: 0},//ふたつ前のページ
+        cargo_items: {item01: 0, item02: 0, item03: 0, item04: 0, 
+          item05: 0, item06: 0, item07: 0, item08: 0, item09: 0,
+          item10: 0, item11: 0, item12: 0, item13: 0, item14: 0, item15: 0, item16: 0
+        }
+      });
+    }
+    
+    function newUserVisit(myUserID){
+      db.ref('users/'+myUserID).update({
+        joined: 1,//自分のユーザー番号のjoinedプロパティを1にする。
+      });
+      console.log("myUserID: "+myUserID+" を自分としてjoined=1にした");
+    }
+
+
+    //--ここからページ切り替え操作およびfirebase書き込み----ここからページ切り替え操作およびfirebase書き込み----ここからページ切り替え操作およびfirebase書き込み--
+    //--ここからページ切り替え操作およびfirebase書き込み----ここからページ切り替え操作およびfirebase書き込み----ここからページ切り替え操作およびfirebase書き込み--
+    //--ここからページ切り替え操作およびfirebase書き込み----ここからページ切り替え操作およびfirebase書き込み----ここからページ切り替え操作およびfirebase書き込み--
+    //--ここからページ切り替え操作およびfirebase書き込み----ここからページ切り替え操作およびfirebase書き込み----ここからページ切り替え操作およびfirebase書き込み--
+
+    //currentPageNum:0にする
+    function noCurrentPageNumber(){
+      db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 0})//firebaseへ書き込み
+    }
+
+    //すべての商品詳細ページを隠すときに呼び出す関数。
+    //①ページ開始時（DOMContentLoaded直後）
+    //②詳細ページにて「カートに追加」が押されたとき
+    //③「戻る」ボタン（詳細ページとカートページ）が押されたとき
+    function allDetailPagesHidden(){
+      //詳細ページを非表示にする
+      document.getElementById('audrey_cocotte').className='invisible';
+      document.getElementById('pave8square').className='invisible';
+      document.getElementById('sazanka12').className='invisible';
+      document.getElementById('curvare4').className='invisible';
+      document.getElementById('tromba').className='invisible';
+      document.getElementById('ferme11').className='invisible';
+      document.getElementById('suku_cup').className='invisible';
+      document.getElementById('placca8').className='invisible';
+      document.getElementById('tilt5').className='invisible';
+      document.getElementById('flap3sun').className='invisible';
+      document.getElementById('greco6').className='invisible';
+      document.getElementById('pile_naga').className='invisible';
+      document.getElementById('menu_cocotte').className='invisible';
+      document.getElementById('yummy_cup').className='invisible';
+      document.getElementById('numbers5').className='invisible';
+      document.getElementById('cocotte').className='invisible';
+    }
+
+    //ギャラリーページを非表示状態にする。
+    function galleryInvisible(){
+      document.getElementById('galleryId').className='invisible';//ギャラリーページを非表示にする
+    }
+    //ギャラリーページを表示状態にする。
+    function galleryVisible(){
+      document.getElementById('galleryId').className='visible';
+    }
+
+
+    document.addEventListener('DOMContentLoaded', function(){//DOMがロードされるまで待つ
+      console.log("DOM content loaded");
+
+      //すべての商品詳細ページをvisiblity: hiddenにする
+      allDetailPagesHidden();
+      //currentPageのitemNumberを0にする
+      noCurrentPageNumber();
+
+      document.getElementById('cargoPage').className='invisible';
+      document.getElementById('backBtn').className='invisible';
+      console.log("Item detail pages are invisible");
+
+      //--ギャラリーページから商品詳細ページへ----ギャラリーページから商品詳細ページへ----ギャラリーページから商品詳細ページへ----ギャラリーページから商品詳細ページへ--
+      //--ギャラリーページから商品詳細ページへ----ギャラリーページから商品詳細ページへ----ギャラリーページから商品詳細ページへ----ギャラリーページから商品詳細ページへ--
+      document.getElementById('img_item01').addEventListener('click', function(){
+          console.log("item01 clicked");
+          galleryInvisible()
+          document.getElementById('audrey_cocotte').className='visible';//item01の詳細ページを表示する
+          document.getElementById('backBtn').className='visible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 1})//firebaseへ書き込み
+          //少しずるいが、決済ボタン押したあとにまた次の商品詳細ページに入ったときにcart_itemsのプロパティを全て0にする
+          if(orderedFlag==1){
+            db.ref('users/'+myUserID+'/cargo_items').update({
+            item01: 0, item02: 0, item03: 0, item04: 0, 
+            item05: 0, item06: 0, item07: 0, item08: 0, 
+            item09: 0, item10: 0, item11: 0, item12: 0,
+            item13: 0, item14: 0, item15: 0, item16: 0})
+            orderedFlag=0;
+          }
+      },false);
+      document.getElementById('img_item02').addEventListener('click', function(){
+          console.log("item02 clicked");
+          galleryInvisible()
+          document.getElementById('pave8square').className='visible';//item02の詳細ページを表示する
+          document.getElementById('backBtn').className='visible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 2})//firebaseへ書き込み
+          //少しずるいが、決済ボタン押したあとにまた次の商品詳細ページに入ったときにcart_itemsのプロパティを全て0にする
+          if(orderedFlag==1){
+            db.ref('users/'+myUserID+'/cargo_items').update({
+            item01: 0, item02: 0, item03: 0, item04: 0, 
+            item05: 0, item06: 0, item07: 0, item08: 0, 
+            item09: 0, item10: 0, item11: 0, item12: 0,
+            item13: 0, item14: 0, item15: 0, item16: 0})
+            orderedFlag=0;
+          }
+      },false);
+      document.getElementById('img_item03').addEventListener('click', function(){
+          console.log("item03 clicked");
+          galleryInvisible()
+          document.getElementById('sazanka12').className='visible';//item03の詳細ページを表示する
+          document.getElementById('backBtn').className='visible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 3})//firebaseへ書き込み
+          //少しずるいが、決済ボタン押したあとにまた次の商品詳細ページに入ったときにcart_itemsのプロパティを全て0にする
+          if(orderedFlag==1){
+            db.ref('users/'+myUserID+'/cargo_items').update({
+            item01: 0, item02: 0, item03: 0, item04: 0, 
+            item05: 0, item06: 0, item07: 0, item08: 0, 
+            item09: 0, item10: 0, item11: 0, item12: 0,
+            item13: 0, item14: 0, item15: 0, item16: 0})
+            orderedFlag=0;
+          }
+      },false);
+      document.getElementById('img_item04').addEventListener('click', function(){
+          console.log("item04 clicked");
+          galleryInvisible()
+          document.getElementById('curvare4').className='visible';//item04の詳細ページを表示する
+          document.getElementById('backBtn').className='visible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 4})//firebaseへ書き込み
+          //少しずるいが、決済ボタン押したあとにまた次の商品詳細ページに入ったときにcart_itemsのプロパティを全て0にする
+          if(orderedFlag==1){
+            db.ref('users/'+myUserID+'/cargo_items').update({
+            item01: 0, item02: 0, item03: 0, item04: 0, 
+            item05: 0, item06: 0, item07: 0, item08: 0, 
+            item09: 0, item10: 0, item11: 0, item12: 0,
+            item13: 0, item14: 0, item15: 0, item16: 0})
+            orderedFlag=0;
+          }
+      },false);
+      document.getElementById('img_item05').addEventListener('click', function(){
+          console.log("item05 clicked");
+          galleryInvisible()
+          document.getElementById('tromba').className='visible';//item05の詳細ページを表示する
+          document.getElementById('backBtn').className='visible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 5})//firebaseへ書き込み
+          //少しずるいが、決済ボタン押したあとにまた次の商品詳細ページに入ったときにcart_itemsのプロパティを全て0にする
+          if(orderedFlag==1){
+            db.ref('users/'+myUserID+'/cargo_items').update({
+            item01: 0, item02: 0, item03: 0, item04: 0, 
+            item05: 0, item06: 0, item07: 0, item08: 0, 
+            item09: 0, item10: 0, item11: 0, item12: 0,
+            item13: 0, item14: 0, item15: 0, item16: 0})
+            orderedFlag=0;
+          }
+      },false);
+      document.getElementById('img_item06').addEventListener('click', function(){
+          console.log("item06 clicked");
+          galleryInvisible()
+          document.getElementById('ferme11').className='visible';//item06の詳細ページを表示する
+          document.getElementById('backBtn').className='visible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 6})//firebaseへ書き込み
+          //少しずるいが、決済ボタン押したあとにまた次の商品詳細ページに入ったときにcart_itemsのプロパティを全て0にする
+          if(orderedFlag==1){
+            db.ref('users/'+myUserID+'/cargo_items').update({
+            item01: 0, item02: 0, item03: 0, item04: 0, 
+            item05: 0, item06: 0, item07: 0, item08: 0, 
+            item09: 0, item10: 0, item11: 0, item12: 0,
+            item13: 0, item14: 0, item15: 0, item16: 0})
+            orderedFlag=0;
+          }
+      },false);
+      document.getElementById('img_item07').addEventListener('click', function(){
+          console.log("item07 clicked");
+          galleryInvisible()
+          document.getElementById('suku_cup').className='visible';//item07の詳細ページを表示する
+          document.getElementById('backBtn').className='visible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 7})//firebaseへ書き込み
+          //少しずるいが、決済ボタン押したあとにまた次の商品詳細ページに入ったときにcart_itemsのプロパティを全て0にする
+          if(orderedFlag==1){
+            db.ref('users/'+myUserID+'/cargo_items').update({
+            item01: 0, item02: 0, item03: 0, item04: 0, 
+            item05: 0, item06: 0, item07: 0, item08: 0, 
+            item09: 0, item10: 0, item11: 0, item12: 0,
+            item13: 0, item14: 0, item15: 0, item16: 0})
+            orderedFlag=0;
+          }
+      },false);
+      document.getElementById('img_item08').addEventListener('click', function(){
+          console.log("item08 clicked");
+          galleryInvisible()
+          document.getElementById('placca8').className='visible';//item08の詳細ページを表示する
+          document.getElementById('backBtn').className='visible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 8})//firebaseへ書き込み
+          //少しずるいが、決済ボタン押したあとにまた次の商品詳細ページに入ったときにcart_itemsのプロパティを全て0にする
+          if(orderedFlag==1){
+            db.ref('users/'+myUserID+'/cargo_items').update({
+            item01: 0, item02: 0, item03: 0, item04: 0, 
+            item05: 0, item06: 0, item07: 0, item08: 0, 
+            item09: 0, item10: 0, item11: 0, item12: 0,
+            item13: 0, item14: 0, item15: 0, item16: 0})
+            orderedFlag=0;
+          }
+      },false);
+      document.getElementById('img_item09').addEventListener('click', function(){
+          console.log("item09 clicked");
+          galleryInvisible()
+          document.getElementById('tilt5').className='visible';//item09の詳細ページを表示する
+          document.getElementById('backBtn').className='visible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 9})//firebaseへ書き込み
+          //少しずるいが、決済ボタン押したあとにまた次の商品詳細ページに入ったときにcart_itemsのプロパティを全て0にする
+          if(orderedFlag==1){
+            db.ref('users/'+myUserID+'/cargo_items').update({
+            item01: 0, item02: 0, item03: 0, item04: 0, 
+            item05: 0, item06: 0, item07: 0, item08: 0, 
+            item09: 0, item10: 0, item11: 0, item12: 0,
+            item13: 0, item14: 0, item15: 0, item16: 0})
+            orderedFlag=0;
+          }
+      },false);
+      document.getElementById('img_item10').addEventListener('click', function(){
+          console.log("item10 clicked");
+          galleryInvisible()
+          document.getElementById('flap3sun').className='visible';//item10の詳細ページを表示する
+          document.getElementById('backBtn').className='visible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 10})//firebaseへ書き込み
+          //少しずるいが、決済ボタン押したあとにまた次の商品詳細ページに入ったときにcart_itemsのプロパティを全て0にする
+          if(orderedFlag==1){
+            db.ref('users/'+myUserID+'/cargo_items').update({
+            item01: 0, item02: 0, item03: 0, item04: 0, 
+            item05: 0, item06: 0, item07: 0, item08: 0, 
+            item09: 0, item10: 0, item11: 0, item12: 0,
+            item13: 0, item14: 0, item15: 0, item16: 0})
+            orderedFlag=0;
+          }
+      },false);
+      document.getElementById('img_item11').addEventListener('click', function(){
+          console.log("item11 clicked");
+          galleryInvisible()
+          document.getElementById('greco6').className='visible';//item11の詳細ページを表示する
+          document.getElementById('backBtn').className='visible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 11})//firebaseへ書き込み
+          //少しずるいが、決済ボタン押したあとにまた次の商品詳細ページに入ったときにcart_itemsのプロパティを全て0にする
+          if(orderedFlag==1){
+            db.ref('users/'+myUserID+'/cargo_items').update({
+            item01: 0, item02: 0, item03: 0, item04: 0, 
+            item05: 0, item06: 0, item07: 0, item08: 0, 
+            item09: 0, item10: 0, item11: 0, item12: 0,
+            item13: 0, item14: 0, item15: 0, item16: 0})
+            orderedFlag=0;
+          }
+      },false);
+      document.getElementById('img_item12').addEventListener('click', function(){
+          console.log("item12 clicked");
+          galleryInvisible()
+          document.getElementById('pile_naga').className='visible';//item12の詳細ページを表示する
+          document.getElementById('backBtn').className='visible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 12})//firebaseへ書き込み
+          //少しずるいが、決済ボタン押したあとにまた次の商品詳細ページに入ったときにcart_itemsのプロパティを全て0にする
+          if(orderedFlag==1){
+            db.ref('users/'+myUserID+'/cargo_items').update({
+            item01: 0, item02: 0, item03: 0, item04: 0, 
+            item05: 0, item06: 0, item07: 0, item08: 0, 
+            item09: 0, item10: 0, item11: 0, item12: 0,
+            item13: 0, item14: 0, item15: 0, item16: 0})
+            orderedFlag=0;
+          }
+      },false);
+      document.getElementById('img_item13').addEventListener('click', function(){
+          console.log("item13 clicked");
+          galleryInvisible()
+          document.getElementById('menu_cocotte').className='visible';//item12の詳細ページを表示する
+          document.getElementById('backBtn').className='visible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 13})//firebaseへ書き込み
+          //少しずるいが、決済ボタン押したあとにまた次の商品詳細ページに入ったときにcart_itemsのプロパティを全て0にする
+          if(orderedFlag==1){
+            db.ref('users/'+myUserID+'/cargo_items').update({
+            item01: 0, item02: 0, item03: 0, item04: 0, 
+            item05: 0, item06: 0, item07: 0, item08: 0, 
+            item09: 0, item10: 0, item11: 0, item12: 0,
+            item13: 0, item14: 0, item15: 0, item16: 0})
+            orderedFlag=0;
+          }
+      },false);
+      document.getElementById('img_item14').addEventListener('click', function(){
+          console.log("item14 clicked");
+          galleryInvisible()
+          document.getElementById('yummy_cup').className='visible';//item12の詳細ページを表示する
+          document.getElementById('backBtn').className='visible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 14})//firebaseへ書き込み
+          //少しずるいが、決済ボタン押したあとにまた次の商品詳細ページに入ったときにcart_itemsのプロパティを全て0にする
+          if(orderedFlag==1){
+            db.ref('users/'+myUserID+'/cargo_items').update({
+            item01: 0, item02: 0, item03: 0, item04: 0, 
+            item05: 0, item06: 0, item07: 0, item08: 0, 
+            item09: 0, item10: 0, item11: 0, item12: 0,
+            item13: 0, item14: 0, item15: 0, item16: 0})
+            orderedFlag=0;
+          }
+      },false);
+      document.getElementById('img_item15').addEventListener('click', function(){
+          console.log("item15 clicked");
+          galleryInvisible()
+          document.getElementById('numbers5').className='visible';//item12の詳細ページを表示する
+          document.getElementById('backBtn').className='visible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 15})//firebaseへ書き込み
+          //少しずるいが、決済ボタン押したあとにまた次の商品詳細ページに入ったときにcart_itemsのプロパティを全て0にする
+          if(orderedFlag==1){
+            db.ref('users/'+myUserID+'/cargo_items').update({
+            item01: 0, item02: 0, item03: 0, item04: 0, 
+            item05: 0, item06: 0, item07: 0, item08: 0, 
+            item09: 0, item10: 0, item11: 0, item12: 0,
+            item13: 0, item14: 0, item15: 0, item16: 0})
+            orderedFlag=0;
+          }
+      },false);
+      document.getElementById('img_item16').addEventListener('click', function(){
+          console.log("item16 clicked");
+          galleryInvisible()
+          document.getElementById('cocotte').className='visible';//item12の詳細ページを表示する
+          document.getElementById('backBtn').className='visible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 16})//firebaseへ書き込み
+          //少しずるいが、決済ボタン押したあとにまた次の商品詳細ページに入ったときにcart_itemsのプロパティを全て0にする
+          if(orderedFlag==1){
+            db.ref('users/'+myUserID+'/cargo_items').update({
+            item01: 0, item02: 0, item03: 0, item04: 0, 
+            item05: 0, item06: 0, item07: 0, item08: 0, 
+            item09: 0, item10: 0, item11: 0, item12: 0,
+            item13: 0, item14: 0, item15: 0, item16: 0})
+            orderedFlag=0;
+          }
+      },false);
+      //--ギャラリーページから商品詳細ページへ----ギャラリーページから商品詳細ページへ----ギャラリーページから商品詳細ページへ----ギャラリーページから商品詳細ページへ--
+      //--ギャラリーページから商品詳細ページへ----ギャラリーページから商品詳細ページへ----ギャラリーページから商品詳細ページへ----ギャラリーページから商品詳細ページへ--
+
+      //--詳細ページ内の写真切り替え操作の書き込み----詳細ページ内の写真切り替え操作の書き込み----詳細ページ内の写真切り替え操作の書き込み--
+      //--詳細ページ内の写真切り替え操作の書き込み----詳細ページ内の写真切り替え操作の書き込み----詳細ページ内の写真切り替え操作の書き込み--
+    
+    //item01
+    document.getElementById('item01_p00').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:0})         },false);
+    document.getElementById('item01_p01').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:1})         },false);
+    document.getElementById('item01_p02').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:2})         },false);
+    document.getElementById('item01_p03').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:3})         },false);
+    document.getElementById('item01_p04').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:4})         },false);
+    document.getElementById('item01_p05').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:5})         },false);
+
+    //item02
+    document.getElementById('item02_p00').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:0})         },false);
+    document.getElementById('item02_p01').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:1})         },false);
+    document.getElementById('item02_p02').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:2})         },false);
+    document.getElementById('item02_p03').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:3})         },false);
+    document.getElementById('item02_p04').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:4})         },false);
+    document.getElementById('item02_p05').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:5})         },false);
+
+    //item03
+    document.getElementById('item03_p00').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:0})         },false);
+    document.getElementById('item03_p01').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:1})         },false);
+    document.getElementById('item03_p02').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:2})         },false);
+    document.getElementById('item03_p03').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:3})         },false);
+    document.getElementById('item03_p04').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:4})         },false);
+    document.getElementById('item03_p05').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:5})         },false);
+    
+    //item04
+    document.getElementById('item04_p00').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:0})         },false);
+    document.getElementById('item04_p01').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:1})         },false);
+    document.getElementById('item04_p02').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:2})         },false);
+    document.getElementById('item04_p03').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:3})         },false);
+    document.getElementById('item04_p04').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:4})         },false);
+
+    //item05
+    document.getElementById('item05_p00').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:0})         },false);
+    document.getElementById('item05_p01').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:1})         },false);
+    document.getElementById('item05_p02').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:2})         },false);
+    document.getElementById('item05_p03').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:3})         },false);
+    document.getElementById('item05_p04').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:4})         },false);
+    document.getElementById('item05_p05').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:5})         },false);
+
+    //item06
+    document.getElementById('item06_p00').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:0})         },false);
+    document.getElementById('item06_p01').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:1})         },false);
+    document.getElementById('item06_p02').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:2})         },false);
+    document.getElementById('item06_p03').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:3})         },false);
+    document.getElementById('item06_p04').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:4})         },false);
+    document.getElementById('item06_p05').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:5})         },false);
+
+    //item07
+    document.getElementById('item07_p00').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:0})         },false);
+    document.getElementById('item07_p01').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:1})         },false);
+    document.getElementById('item07_p02').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:2})         },false);
+    document.getElementById('item07_p03').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:3})         },false);
+
+    //item08
+    document.getElementById('item08_p00').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:0})         },false);
+    document.getElementById('item08_p01').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:1})         },false);
+    document.getElementById('item08_p02').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:2})         },false);
+    document.getElementById('item08_p03').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:3})         },false);
+    document.getElementById('item08_p04').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:4})         },false);
+    document.getElementById('item08_p05').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:5})         },false);
+
+    //item09
+    document.getElementById('item09_p00').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:0})         },false);
+    document.getElementById('item09_p01').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:1})         },false);
+    document.getElementById('item09_p02').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:2})         },false);
+
+    //item10
+    document.getElementById('item10_p00').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:0})         },false);
+    document.getElementById('item10_p01').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:1})         },false);
+    document.getElementById('item10_p02').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:2})         },false);
+    document.getElementById('item10_p03').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:3})         },false);
+    document.getElementById('item10_p04').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:4})         },false);
+    document.getElementById('item10_p05').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:5})         },false);
+
+    //item11
+    document.getElementById('item11_p00').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:0})         },false);
+    document.getElementById('item11_p01').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:1})         },false);
+    document.getElementById('item11_p02').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:2})         },false);
+    document.getElementById('item11_p03').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:3})         },false);
+
+    //item12
+    document.getElementById('item12_p00').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:0})         },false);
+    document.getElementById('item12_p01').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:1})         },false);
+    document.getElementById('item12_p02').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:2})         },false);
+    document.getElementById('item12_p03').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:3})         },false);
+
+    //item13
+    document.getElementById('item13_p00').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:0})         },false);
+    document.getElementById('item13_p01').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:1})         },false);
+    document.getElementById('item13_p02').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:2})         },false);
+
+    //item14
+    document.getElementById('item14_p00').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:0})         },false);
+    document.getElementById('item14_p01').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:1})         },false);
+    document.getElementById('item14_p02').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:2})         },false);
+    document.getElementById('item14_p03').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:3})         },false);
+    document.getElementById('item14_p04').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:4})         },false);
+    document.getElementById('item14_p05').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:5})         },false);
+
+    //item15
+    document.getElementById('item15_p00').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:0})         },false);
+    document.getElementById('item15_p01').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:1})         },false);
+    document.getElementById('item15_p02').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:2})         },false);
+    document.getElementById('item15_p03').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:3})         },false);
+
+    //item16
+    document.getElementById('item16_p00').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:0})         },false);
+    document.getElementById('item16_p01').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:1})         },false);
+    document.getElementById('item16_p02').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:2})         },false);
+    document.getElementById('item16_p03').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:3})         },false);
+    document.getElementById('item16_p04').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:4})         },false);
+    document.getElementById('item16_p05').addEventListener('click', function(){
+            db.ref('users/'+myUserID+'/currentPage').update({
+            seeingPhoto:5})         },false);
+    
+      //--詳細ページ内の写真切り替え操作の書き込み----詳細ページ内の写真切り替え操作の書き込み----詳細ページ内の写真切り替え操作の書き込み--
+      //--詳細ページ内の写真切り替え操作の書き込み----詳細ページ内の写真切り替え操作の書き込み----詳細ページ内の写真切り替え操作の書き込み--
+
+      //--ショッピングカートページ関連----ショッピングカートページ関連----ショッピングカートページ関連----ショッピングカートページ関連--
+      //--ショッピングカートページ関連----ショッピングカートページ関連----ショッピングカートページ関連----ショッピングカートページ関連--
+
+      //firebaseのカートの中身（cargo_items）をチェックし、カゴに入っているものだけ表示する
+      function cargoContentShow(){
+        db.ref('users/'+myUserID+'/cargo_items').once('value',(snapshot)=>{
+            var cargoData=snapshot.val();
+            //console.log(cargoData);
+            //console.log('cargoDataのitem01 => '+ cargoData.item01);
+            if(cargoData.item01>=1){document.getElementById('cargo_audrey_cocotte').className='visible';}
+            if(cargoData.item02>=1){document.getElementById('cargo_pave8square').className='visible';}
+            if(cargoData.item03>=1){document.getElementById('cargo_sazanka12').className='visible';}
+            if(cargoData.item04>=1){document.getElementById('cargo_curvare4').className='visible';}
+            if(cargoData.item05>=1){document.getElementById('cargo_tromba').className='visible';}
+            if(cargoData.item06>=1){document.getElementById('cargo_ferme11').className='visible';}
+            if(cargoData.item07>=1){document.getElementById('cargo_suku_cup').className='visible';}
+            if(cargoData.item08>=1){document.getElementById('cargo_placca8').className='visible';}
+            if(cargoData.item09>=1){document.getElementById('cargo_tilt5').className='visible';}
+            if(cargoData.item10>=1){document.getElementById('cargo_flap3sun').className='visible';}
+            if(cargoData.item11>=1){document.getElementById('cargo_greco6').className='visible';}
+            if(cargoData.item12>=1){document.getElementById('cargo_pile_naga').className='visible';}
+            if(cargoData.item13>=1){document.getElementById('cargo_menu_cocotte').className='visible';}
+            if(cargoData.item14>=1){document.getElementById('cargo_yummy_cup').className='visible';}
+            if(cargoData.item15>=1){document.getElementById('cargo_numbers5').className='visible';}
+            if(cargoData.item16>=1){document.getElementById('cargo_cocotte').className='visible';}
+          })
+      }
+
+      //ショッピングカートページを開く
+      document.getElementById('goCargoBtn').addEventListener('click', function(){
+          console.log("goCargoBtn clicked");
+          galleryInvisible()
+          document.getElementById('cargoPage').className='visible';
+          cargoContentShow();
+          noCurrentPageNumber();
+          document.getElementById('backBtn').className='visible';
+      },false);
+
+      //ショッピングカートの中身の表の削除ボタンのインタラクション
+      document.getElementById('deleteBtn_item01').addEventListener('click', function(){
+        db.ref('users/'+myUserID+'/cargo_items').update({item01: 0});//まずfirebaseを更新
+        cargoAllItemsNoExist();//一旦全てリストを全て非表示にする
+        cargoContentShow();//改めて数が1以上入っているものだけを表示にする
+      },false);
+      document.getElementById('deleteBtn_item02').addEventListener('click', function(){
+        db.ref('users/'+myUserID+'/cargo_items').update({item02: 0});//まずfirebaseを更新
+        cargoAllItemsNoExist();//一旦全てリストを全て非表示にする
+        cargoContentShow();//改めて数が1以上入っているものだけを表示にする
+      },false);
+      document.getElementById('deleteBtn_item03').addEventListener('click', function(){
+        db.ref('users/'+myUserID+'/cargo_items').update({item03: 0});//まずfirebaseを更新
+        cargoAllItemsNoExist();//一旦全てリストを全て非表示にする
+        cargoContentShow();//改めて数が1以上入っているものだけを表示にする
+      },false);
+      document.getElementById('deleteBtn_item04').addEventListener('click', function(){
+        db.ref('users/'+myUserID+'/cargo_items').update({item04: 0});//まずfirebaseを更新
+        cargoAllItemsNoExist();//一旦全てリストを全て非表示にする
+        cargoContentShow();//改めて数が1以上入っているものだけを表示にする
+      },false);
+      document.getElementById('deleteBtn_item05').addEventListener('click', function(){
+        db.ref('users/'+myUserID+'/cargo_items').update({item05: 0});//まずfirebaseを更新
+        cargoAllItemsNoExist();//一旦全てリストを全て非表示にする
+        cargoContentShow();//改めて数が1以上入っているものだけを表示にする
+      },false);
+      document.getElementById('deleteBtn_item06').addEventListener('click', function(){
+        db.ref('users/'+myUserID+'/cargo_items').update({item06: 0});//まずfirebaseを更新
+        cargoAllItemsNoExist();//一旦全てリストを全て非表示にする
+        cargoContentShow();//改めて数が1以上入っているものだけを表示にする
+      },false);
+      document.getElementById('deleteBtn_item07').addEventListener('click', function(){
+        db.ref('users/'+myUserID+'/cargo_items').update({item07: 0});//まずfirebaseを更新
+        cargoAllItemsNoExist();//一旦全てリストを全て非表示にする
+        cargoContentShow();//改めて数が1以上入っているものだけを表示にする
+      },false);
+      document.getElementById('deleteBtn_item08').addEventListener('click', function(){
+        db.ref('users/'+myUserID+'/cargo_items').update({item08: 0});//まずfirebaseを更新
+        cargoAllItemsNoExist();//一旦全てリストを全て非表示にする
+        cargoContentShow();//改めて数が1以上入っているものだけを表示にする
+      },false);
+      document.getElementById('deleteBtn_item09').addEventListener('click', function(){
+        db.ref('users/'+myUserID+'/cargo_items').update({item09: 0});//まずfirebaseを更新
+        cargoAllItemsNoExist();//一旦全てリストを全て非表示にする
+        cargoContentShow();//改めて数が1以上入っているものだけを表示にする
+      },false);
+      document.getElementById('deleteBtn_item10').addEventListener('click', function(){
+        db.ref('users/'+myUserID+'/cargo_items').update({item10: 0});//まずfirebaseを更新
+        cargoAllItemsNoExist();//一旦全てリストを全て非表示にする
+        cargoContentShow();//改めて数が1以上入っているものだけを表示にする
+      },false);
+      document.getElementById('deleteBtn_item11').addEventListener('click', function(){
+        db.ref('users/'+myUserID+'/cargo_items').update({item11: 0});//まずfirebaseを更新
+        cargoAllItemsNoExist();//一旦全てリストを全て非表示にする
+        cargoContentShow();//改めて数が1以上入っているものだけを表示にする
+      },false);
+      document.getElementById('deleteBtn_item12').addEventListener('click', function(){
+        db.ref('users/'+myUserID+'/cargo_items').update({item12: 0});//まずfirebaseを更新
+        cargoAllItemsNoExist();//一旦全てリストを全て非表示にする
+        cargoContentShow();//改めて数が1以上入っているものだけを表示にする
+      },false);
+      document.getElementById('deleteBtn_item13').addEventListener('click', function(){
+        db.ref('users/'+myUserID+'/cargo_items').update({item13: 0});//まずfirebaseを更新
+        cargoAllItemsNoExist();//一旦全てリストを全て非表示にする
+        cargoContentShow();//改めて数が1以上入っているものだけを表示にする
+      },false);
+      document.getElementById('deleteBtn_item14').addEventListener('click', function(){
+        db.ref('users/'+myUserID+'/cargo_items').update({item14: 0});//まずfirebaseを更新
+        cargoAllItemsNoExist();//一旦全てリストを全て非表示にする
+        cargoContentShow();//改めて数が1以上入っているものだけを表示にする
+      },false);
+      document.getElementById('deleteBtn_item15').addEventListener('click', function(){
+        db.ref('users/'+myUserID+'/cargo_items').update({item15: 0});//まずfirebaseを更新
+        cargoAllItemsNoExist();//一旦全てリストを全て非表示にする
+        cargoContentShow();//改めて数が1以上入っているものだけを表示にする
+      },false);
+      document.getElementById('deleteBtn_item16').addEventListener('click', function(){
+        db.ref('users/'+myUserID+'/cargo_items').update({item16: 0});//まずfirebaseを更新
+        cargoAllItemsNoExist();//一旦全てリストを全て非表示にする
+        cargoContentShow();//改めて数が1以上入っているものだけを表示にする
+      },false);
+
+
+      //決済するボタンでcargo_itemsの中でもカートに追加されていた商品のプロパティを'oredered'にする
+      document.getElementById("paymentBtnId").addEventListener('click', function(){
+          db.ref('users/'+myUserID+'/cargo_items').once('value',(snapshot) =>{
+            var orderedItems=snapshot.val();
+            if(orderedItems.item01==1){db.ref('users/'+myUserID+'/cargo_items').update({item01: 'ordered'})}
+            if(orderedItems.item02==1){db.ref('users/'+myUserID+'/cargo_items').update({item02: 'ordered'})}
+            if(orderedItems.item03==1){db.ref('users/'+myUserID+'/cargo_items').update({item03: 'ordered'})}
+            if(orderedItems.item04==1){db.ref('users/'+myUserID+'/cargo_items').update({item04: 'ordered'})}
+            if(orderedItems.item05==1){db.ref('users/'+myUserID+'/cargo_items').update({item05: 'ordered'})}
+            if(orderedItems.item06==1){db.ref('users/'+myUserID+'/cargo_items').update({item06: 'ordered'})}
+            if(orderedItems.item07==1){db.ref('users/'+myUserID+'/cargo_items').update({item07: 'ordered'})}
+            if(orderedItems.item08==1){db.ref('users/'+myUserID+'/cargo_items').update({item08: 'ordered'})}
+            if(orderedItems.item09==1){db.ref('users/'+myUserID+'/cargo_items').update({item09: 'ordered'})}
+            if(orderedItems.item10==1){db.ref('users/'+myUserID+'/cargo_items').update({item10: 'ordered'})}
+            if(orderedItems.item11==1){db.ref('users/'+myUserID+'/cargo_items').update({item11: 'ordered'})}
+            if(orderedItems.item12==1){db.ref('users/'+myUserID+'/cargo_items').update({item12: 'ordered'})}
+            if(orderedItems.item13==1){db.ref('users/'+myUserID+'/cargo_items').update({item13: 'ordered'})}
+            if(orderedItems.item14==1){db.ref('users/'+myUserID+'/cargo_items').update({item14: 'ordered'})}
+            if(orderedItems.item15==1){db.ref('users/'+myUserID+'/cargo_items').update({item15: 'ordered'})}
+            if(orderedItems.item16==1){db.ref('users/'+myUserID+'/cargo_items').update({item16: 'ordered'})}
+          })
+          console.log("paymentBtn clicked");
+          orderedFlag=1;
+          cargoAllItemsNoExist()
+      },false);
+
+      //カゴのリスト内容を全て非表示（noExistance)に変更する関数。カートの中身ページにて戻るボタンか決済ボタンを押すと実行される。
+      function cargoAllItemsNoExist(){
+          document.getElementById('cargo_audrey_cocotte').className='noExistance';
+          document.getElementById('cargo_pave8square').className='noExistance';
+          document.getElementById('cargo_sazanka12').className='noExistance';
+          document.getElementById('cargo_curvare4').className='noExistance';
+          document.getElementById('cargo_tromba').className='noExistance';
+          document.getElementById('cargo_ferme11').className='noExistance';
+          document.getElementById('cargo_suku_cup').className='noExistance';
+          document.getElementById('cargo_placca8').className='noExistance';
+          document.getElementById('cargo_tilt5').className='noExistance';
+          document.getElementById('cargo_flap3sun').className='noExistance';
+          document.getElementById('cargo_greco6').className='noExistance';
+          document.getElementById('cargo_pile_naga').className='noExistance';
+          document.getElementById('cargo_menu_cocotte').className='noExistance';
+          document.getElementById('cargo_yummy_cup').className='noExistance';
+          document.getElementById('cargo_numbers5').className='noExistance';
+          document.getElementById('cargo_cocotte').className='noExistance';
+      }
+      //--ショッピングカートページ関連----ショッピングカートページ関連----ショッピングカートページ関連----ショッピングカートページ関連--
+      //--ショッピングカートページ関連----ショッピングカートページ関連----ショッピングカートページ関連----ショッピングカートページ関連--
+
+      //--戻るボタンクリック処理----戻るボタンクリック処理----戻るボタンクリック処理----戻るボタンクリック処理----戻るボタンクリック処理--
+      //--戻るボタンクリック処理----戻るボタンクリック処理----戻るボタンクリック処理----戻るボタンクリック処理----戻るボタンクリック処理--
+      document.getElementById("closeBtn").addEventListener('click', function(){
+          
+        //すべての商品詳細ページをinvisibleにする
+          allDetailPagesHidden();
+        //ギャラリーページを開く
+        galleryVisible();
+        //currentPage itemNumberを0にする
+        noCurrentPageNumber()
+        //ショッピングカートのページをinvisibleにする
+        document.getElementById('cargoPage').className='invisible';
+        //ショッピングカートのリストの中身を全て非表示(collapse)にする
+        cargoAllItemsNoExist();
+        //データベース・currentPageのseeingPhotoプロパティを0にする
+        db.ref('users/'+myUserID+'/currentPage').update({seeingPhoto:0})
+
+        document.getElementById('backBtn').className='invisible';
+        console.log("closeBtn clicked");
+      },false);
+      //--戻るボタンクリック処理----戻るボタンクリック処理----戻るボタンクリック処理----戻るボタンクリック処理----戻るボタンクリック処理--
+      //--戻るボタンクリック処理----戻るボタンクリック処理----戻るボタンクリック処理----戻るボタンクリック処理----戻るボタンクリック処理--
+
+      //--カートに追加ボタンクリック処理----カートに追加ボタンクリック処理----カートに追加ボタンクリック処理----カートに追加ボタンクリック処理--
+      //--カートに追加ボタンクリック処理----カートに追加ボタンクリック処理----カートに追加ボタンクリック処理----カートに追加ボタンクリック処理--
+      document.getElementById("audrey_cocotte_orderBtnId").addEventListener('click', function(){
+          document.getElementById('audrey_cocotte').className='invisible';
+          galleryVisible();
+          noCurrentPageNumber();
+          document.getElementById('backBtn').className='invisible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 0})//firebaseへ書き込み
+          db.ref('users/'+myUserID+'/cargo_items').update({item01: 1})//のちのち数量も反映させたい
+          console.log("audrey_cocotte_orderBtn clicked");
+      },false);
+      document.getElementById("pave8square_orderBtnId").addEventListener('click', function(){
+          document.getElementById('pave8square').className='invisible';
+          galleryVisible();
+          noCurrentPageNumber();
+          document.getElementById('backBtn').className='invisible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 0})//firebaseへ書き込み
+          db.ref('users/'+myUserID+'/cargo_items').update({item02: 1})//のちのち数量も反映させたい
+          console.log("pave8square_orderBtn clicked");
+      },false);
+      document.getElementById("sazanka12_orderBtnId").addEventListener('click', function(){
+          document.getElementById('sazanka12').className='invisible';
+          galleryVisible();
+          noCurrentPageNumber();
+          document.getElementById('backBtn').className='invisible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 0})//firebaseへ書き込み
+          db.ref('users/'+myUserID+'/cargo_items').update({item03: 1})//のちのち数量も反映させたい
+          console.log("sazanka12_orderBtn clicked");
+      },false);
+      document.getElementById("curvare4_orderBtnId").addEventListener('click', function(){
+          document.getElementById('curvare4').className='invisible';
+          galleryVisible();
+          noCurrentPageNumber();
+          document.getElementById('backBtn').className='invisible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 0})//firebaseへ書き込み
+          db.ref('users/'+myUserID+'/cargo_items').update({item04: 1})//のちのち数量も反映させたい
+          console.log("curvare4_orderBtn clicked");
+      },false);
+      document.getElementById("tromba_orderBtnId").addEventListener('click', function(){
+          document.getElementById('tromba').className='invisible';
+          galleryVisible();
+          noCurrentPageNumber();
+          document.getElementById('backBtn').className='invisible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 0})//firebaseへ書き込み
+          db.ref('users/'+myUserID+'/cargo_items').update({item05: 1})//のちのち数量も反映させたい
+          console.log("tromba_orderBtn clicked");
+      },false);
+      document.getElementById("ferme11_orderBtnId").addEventListener('click', function(){
+          document.getElementById('ferme11').className='invisible';
+          galleryVisible();
+          noCurrentPageNumber();
+          document.getElementById('backBtn').className='invisible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 0})//firebaseへ書き込み
+          db.ref('users/'+myUserID+'/cargo_items').update({item06: 1})//のちのち数量も反映させたい
+          console.log("ferme11_orderBtn clicked");
+      },false);
+      document.getElementById("suku_cup_orderBtnId").addEventListener('click', function(){
+          document.getElementById('suku_cup').className='invisible';
+          galleryVisible();
+          noCurrentPageNumber();
+          document.getElementById('backBtn').className='invisible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 0})//firebaseへ書き込み
+          db.ref('users/'+myUserID+'/cargo_items').update({item07: 1})//のちのち数量も反映させたい
+          console.log("suku_cup_orderBtn clicked");
+      },false);
+      document.getElementById("placca8_orderBtnId").addEventListener('click', function(){
+          document.getElementById('placca8').className='invisible';
+          galleryVisible();
+          noCurrentPageNumber();
+          document.getElementById('backBtn').className='invisible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 0})//firebaseへ書き込み
+          db.ref('users/'+myUserID+'/cargo_items').update({item08: 1})//のちのち数量も反映させたい
+          console.log("placca8_orderBtn clicked");
+      },false);
+      document.getElementById("tilt5_orderBtnId").addEventListener('click', function(){
+          document.getElementById('tilt5').className='invisible';
+          galleryVisible();
+          noCurrentPageNumber();
+          document.getElementById('backBtn').className='invisible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 0})//firebaseへ書き込み
+          db.ref('users/'+myUserID+'/cargo_items').update({item09: 1})//のちのち数量も反映させたい
+          console.log("tilt5_orderBtn clicked");
+      },false);
+      document.getElementById("flap3sun_orderBtnId").addEventListener('click', function(){
+          document.getElementById('flap3sun').className='invisible';
+          galleryVisible();
+          noCurrentPageNumber();
+          document.getElementById('backBtn').className='invisible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 0})//firebaseへ書き込み
+          db.ref('users/'+myUserID+'/cargo_items').update({item10: 1})//のちのち数量も反映させたい
+          console.log("flap3sun_orderBtn clicked");
+      },false);
+      document.getElementById("greco6_orderBtnId").addEventListener('click', function(){
+          document.getElementById('greco6').className='invisible';
+          galleryVisible();
+          noCurrentPageNumber();
+          document.getElementById('backBtn').className='invisible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 0})//firebaseへ書き込み
+          db.ref('users/'+myUserID+'/cargo_items').update({item11: 1})//のちのち数量も反映させたい
+          console.log("greco6_orderBtn clicked");
+      },false);
+      document.getElementById("pile_naga_orderBtnId").addEventListener('click', function(){
+          document.getElementById('pile_naga').className='invisible';
+          galleryVisible();
+          noCurrentPageNumber();
+          document.getElementById('backBtn').className='invisible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 0})//firebaseへ書き込み
+          db.ref('users/'+myUserID+'/cargo_items').update({item12: 1})//のちのち数量も反映させたい
+          console.log("pile_naga_orderBtn clicked");
+      },false);
+      document.getElementById("menu_cocotte_orderBtnId").addEventListener('click', function(){
+          document.getElementById('menu_cocotte').className='invisible';
+          galleryVisible();
+          noCurrentPageNumber();
+          document.getElementById('backBtn').className='invisible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 0})//firebaseへ書き込み
+          db.ref('users/'+myUserID+'/cargo_items').update({item13: 1})//のちのち数量も反映させたい
+          console.log("menu_cocotte_orderBtn clicked");
+      },false);
+      document.getElementById("yummy_cup_orderBtnId").addEventListener('click', function(){
+          document.getElementById('yummy_cup').className='invisible';
+          galleryVisible();
+          noCurrentPageNumber();
+          document.getElementById('backBtn').className='invisible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 0})//firebaseへ書き込み
+          db.ref('users/'+myUserID+'/cargo_items').update({item14: 1})//のちのち数量も反映させたい
+          console.log("yummy_cup_orderBtn clicked");
+      },false);
+      document.getElementById("numbers5_orderBtnId").addEventListener('click', function(){
+          document.getElementById('numbers5').className='invisible';
+          galleryVisible();
+          noCurrentPageNumber();
+          document.getElementById('backBtn').className='invisible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 0})//firebaseへ書き込み
+          db.ref('users/'+myUserID+'/cargo_items').update({item15: 1})//のちのち数量も反映させたい
+          console.log("numbers5_orderBtn clicked");
+      },false);
+      document.getElementById("cocotte_orderBtnId").addEventListener('click', function(){
+          document.getElementById('cocotte').className='invisible';
+          galleryVisible();
+          noCurrentPageNumber();
+          document.getElementById('backBtn').className='invisible';
+          db.ref('users/'+myUserID+'/currentPage').update({itemNumber: 0})//firebaseへ書き込み
+          db.ref('users/'+myUserID+'/cargo_items').update({item16: 1})//のちのち数量も反映させたい
+          console.log("cocotte_orderBtn clicked");
+      },false);
+      //--カートに追加ボタンクリック処理----カートに追加ボタンクリック処理----カートに追加ボタンクリック処理----カートに追加ボタンクリック処理--
+      //--カートに追加ボタンクリック処理----カートに追加ボタンクリック処理----カートに追加ボタンクリック処理----カートに追加ボタンクリック処理--
+
+      //スクロールの書き込み
+      window.addEventListener('scroll', function(){
+          db.ref('users/'+myUserID+'/currentPage').update({scroll: window.pageYOffset})
+          console.log('スクロール => '+window.pageYOffset);
+      }, false);
+  })
+
+  //ここにあってもp5.jsは動作しない。おそらくbody内に置く必要がある。
+  //YOffset常に書き込みさせたいので、変化があるたびに書き込むように上のfirebaseインタラクション内で指示する。
+  function setup(){
+    console.log("p5 setup starts");
+    frameRate(30);
+  }
+  function draw(){
+    //スクロール量の取得テスト→できた（body内にこのコードがあるときのみ）
+    var y=window.pageYOffset;
+    console.log("y="+ y);
+  }
+
+  </script>
+</html>

@@ -1,0 +1,542 @@
+@charset "utf-8";
+
+/*--ページ全体----ページ全体----ページ全体----ページ全体----ページ全体----ページ全体----ページ全体----ページ全体----ページ全体--*/
+/*--ページ全体----ページ全体----ページ全体----ページ全体----ページ全体----ページ全体----ページ全体----ページ全体----ページ全体--*/
+body{
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
+    color: #333333;
+    font-size: 15px;
+    line-height: 2;
+    letter-spacing: 0.1em
+}
+p,h1,h2,h3,h4,h5,h6{
+    margin-top: 0;
+    margin-bottom: 0;
+    font-weight: normal;
+}
+img{
+    vertical-align: bottom;
+}
+.link:hover{
+    cursor: pointer;
+    cursor: hand;
+}
+/*リストを整える*/
+ul{
+    margin: 0;
+    padding: 0;
+}
+.visible{/*可視化の信号クラス*/
+    visibility: visible;
+}
+.invisible{/*透明化の信号クラス*/
+    visibility: hidden;
+}
+.noExistance{/*存在無しにする信号クラス（cargoPageで使用）*/
+    visibility: collapse;
+}
+/*--ページ全体----ページ全体----ページ全体----ページ全体----ページ全体----ページ全体----ページ全体----ページ全体----ページ全体--*/
+/*--ページ全体----ページ全体----ページ全体----ページ全体----ページ全体----ページ全体----ページ全体----ページ全体----ページ全体--*/
+
+/*--ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー--*/
+/*--ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー--*/
+
+/*ヘッダーを位置調整*/
+header{
+    width: 1024px;
+    height: 80px;
+    margin: 0 auto;
+    margin-bottom: 100px;
+    font-size: 12px;
+    /*ヘッダーをページ上部に固定する*/
+    /*position: fixed;*/
+}
+/*ヘッダーのロゴを位置調整*/
+.logo{
+    float: left;
+    margin-top: 30px;
+    margin-left: 50px;
+}
+.logo img{
+    height: 50px;
+}
+.logo img:hover{
+    cursor: pointer;
+    cursor: hand;
+}
+/*ヘッダーのナビを位置調整*/
+.global-nav{
+    float: right;
+    margin-top: 30px;
+}
+/*ヘッダーのナビをホバーでリンクっぽく見せる*/
+.navis{
+    text-decoration: none;
+    float: left;
+    margin: 0 20px;
+    list-style: none;
+    margin-bottom: 50px;
+}
+.navis:hover{
+    text-decoration: underline;
+    cursor: pointer;
+    cursor: hand;
+}
+/*--ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー--*/
+/*--ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー----ヘッダー--*/
+
+/*横線*/
+hr {
+    border-width: 1px 0px 0px 0px; /* 太さ */
+    border-style: solid; /* 線種 */
+    border-color: #999999;   /* 線色 */
+    height: 1px;         /* 高さ(※古いIE用) */
+    clear: both;
+ }
+
+/*左右両方の回り込みを解除した*/
+#wrap{
+    clear: both;
+}
+.content{
+    width: 1024px;
+    margin: 0 auto;
+    position: relative
+}
+
+/*--ギャラリーページ----ギャラリーページ----ギャラリーページ----ギャラリーページ----ギャラリーページ----ギャラリーページ----ギャラリーページ--*/
+/*--ギャラリーページ----ギャラリーページ----ギャラリーページ----ギャラリーページ----ギャラリーページ----ギャラリーページ----ギャラリーページ--*/
+.gallery{
+    z-index: 2;
+    width: 1024px;
+    position: relative;
+    background-color: #ffffff;
+}
+/*marginの指定順序: 上 左 右 下*/
+.Gallery li{
+    width: 210px;
+    height: 400px;
+    float: left;
+    list-style: none;
+    margin: 0 30px 0 15px;
+}
+.Gallery li img{
+    width: 210px;
+    transition: all .2s ease-in-out;
+}
+.Gallery li img:hover{
+    box-shadow: 0px 0px 3px rgba(109, 88, 88, 0.5);
+    cursor: pointer;
+    cursor: hand;
+}
+/*商品名表示*/
+#Gallery-section .Gallery li h3{
+    margin-top: 10px;
+    font-size: 12px;
+}
+/*値段表示*/
+#Gallery-section .Gallery li h4{
+    margin-top: 2px;
+    font-size: 12px;
+}
+/*--ギャラリーページ終わり----ギャラリーページ終わり----ギャラリーページ終わり----ギャラリーページ終わり----ギャラリーページ終わり----ギャラリーページ終わり--*/
+/*--ギャラリーページ終わり----ギャラリーページ終わり----ギャラリーページ終わり----ギャラリーページ終わり----ギャラリーページ終わり----ギャラリーページ終わり--*/
+
+/*--商品詳細ページ----商品詳細ページ----商品詳細ページ----商品詳細ページ----商品詳細ページ----商品詳細ページ----商品詳細ページ----商品詳細ページ--*/
+/*--商品詳細ページ----商品詳細ページ----商品詳細ページ----商品詳細ページ----商品詳細ページ----商品詳細ページ----商品詳細ページ----商品詳細ページ--*/
+#audrey_cocotte {/*商品詳細ページ*/
+    z-index: 1;
+    /* background-color: #ffffff; */
+    width: 1024px;
+    position: absolute;
+    background-color: #ffffff;
+}
+#pave8square {/*商品詳細ページ*/
+    z-index: 1;
+    /* background-color: #ffffff; */
+    width: 1024px;
+    position: absolute;
+    background-color: #ffffff;
+}
+#sazanka12 {/*商品詳細ページ*/
+    z-index: 1;
+    /* background-color: #ffffff; */
+    width: 1024px;
+    position: absolute;
+    background-color: #ffffff;
+}
+#curvare4 {/*商品詳細ページ*/
+    z-index: 1;
+    /* background-color: #ffffff; */
+    width: 1024px;
+    position: absolute;
+    background-color: #ffffff;
+}
+#tromba {/*商品詳細ページ*/
+    z-index: 1;
+    /* background-color: #ffffff; */
+    width: 1024px;
+    position: absolute;
+    background-color: #ffffff;
+}
+#ferme11 {/*商品詳細ページ*/
+    z-index: 1;
+    /* background-color: #ffffff; */
+    width: 1024px;
+    position: absolute;
+    background-color: #ffffff;
+}
+#suku_cup {/*商品詳細ページ*/
+    z-index: 1;
+    /* background-color: #ffffff; */
+    width: 1024px;
+    position: absolute;
+    background-color: #ffffff;
+}
+#placca8 {/*商品詳細ページ*/
+    z-index: 1;
+    /* background-color: #ffffff; */
+    width: 1024px;
+    position: absolute;
+    background-color: #ffffff;
+}
+#tilt5 {/*商品詳細ページ*/
+    z-index: 1;
+    /* background-color: #ffffff; */
+    width: 1024px;
+    position: absolute;
+    background-color: #ffffff;
+}
+#flap3sun {/*商品詳細ページ*/
+    z-index: 1;
+    /* background-color: #ffffff; */
+    width: 1024px;
+    position: absolute;
+    background-color: #ffffff;
+}
+#greco6 {/*商品詳細ページ*/
+    z-index: 1;
+    /* background-color: #ffffff; */
+    width: 1024px;
+    position: absolute;
+    background-color: #ffffff;
+}
+#pile_naga {/*商品詳細ページ*/
+    z-index: 1;
+    /* background-color: #ffffff; */
+    width: 1024px;
+    position: absolute;
+    background-color: #ffffff;
+}
+#menu_cocotte {/*商品詳細ページ*/
+    z-index: 1;
+    /* background-color: #ffffff; */
+    width: 1024px;
+    position: absolute;
+    background-color: #ffffff;
+}
+#yummy_cup {/*商品詳細ページ*/
+    z-index: 1;
+    /* background-color: #ffffff; */
+    width: 1024px;
+    position: absolute;
+    background-color: #ffffff;
+}
+#numbers5 {/*商品詳細ページ*/
+    z-index: 1;
+    /* background-color: #ffffff; */
+    width: 1024px;
+    position: absolute;
+    background-color: #ffffff;
+}
+#cocotte {/*商品詳細ページ*/
+    z-index: 1;
+    /* background-color: #ffffff; */
+    width: 1024px;
+    position: absolute;
+    background-color: #ffffff;
+}
+
+/*左と右のエリアの仕分け*/
+.left_side{
+    float: left;
+    width: 700px;
+    margin-bottom: 50px;
+}
+.right_side{
+    float: left;
+}
+.backButton{
+    background-color: #ffffff;
+    color: #333333;
+    font-size: 12px;
+    display: block;
+    width: 150px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 20px;
+    border-color: #333333;
+    border-style: solid;
+    border-width: 1px;
+    clear: both;
+}
+
+/*画像表示エリア*/
+.small_images{
+    float: left;
+    margin-bottom: 50px;
+}
+.small_images img{
+    width: 75px;
+    display: block;
+    clear: both;
+    margin-bottom: 14px;
+    transition: all .2s ease-in-out;
+}
+.small_images img:hover{
+    box-shadow: 0px 0px 3px rgba(109, 88, 88, 0.5);
+    cursor: pointer;
+    cursor: hand;
+}
+.main_image img{
+    width: 520px;
+    float: left;
+    margin-left: 40px;
+    margin-bottom: 50px;
+}
+/*画像表示エリア終わり*/
+
+/*商品名などのエリア*/
+.product_info {clear: both;}
+.product_info h5{ /*ブランド名*/
+    font-size: 12px;
+    font-weight: normal; /*font-weightの指定はnormalかbold。bolderやlighterは親要素よりも太くしたり細くしたりする*/
+}
+.product_info h1{ /*商品名*/
+    font-size: 20px;
+    font-weight: normal;
+}
+.product_info h2{ /*値段*/
+    font-size: 15px;
+    font-weight: normal;
+}
+.orderCount label{
+    margin: 28px 0;
+    float: left;
+}
+.orderCount input{
+    margin: 20px 0;
+    height: 40px;
+    width: 80px;
+    text-align: center;
+    font-size: 15px;
+}
+.colorType label{
+    margin: 28px 0;
+    float: left;
+}
+.colorType input{
+    margin: 20px 0;
+    height: 40px;
+    width: 113px;
+    text-align: center;
+    font-size: 15px;
+}
+.orderBtn{
+    background-color: #333333;
+    color: #ffffff;
+    font-size: 14px;
+    display: block;
+    width: 250px;
+    line-height: 50px;
+    text-align: center;
+    clear: both;
+    margin-top: 20px;
+    border-radius: 25px;
+}
+.orderBtn:hover{
+    cursor: pointer;
+    cursor: hand;
+}
+.SNS img{
+    width: 100px;
+    float: right;
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+/*商品名などのエリア終わり*/
+
+/*詳細説明文エリア*/
+.sub_info{clear: both;}
+.sub_info img{
+    width: 700px;
+    margin-top: 5px;
+}
+.sub_info p{
+    font-size: 12px;
+    margin: 30px auto;
+}
+/*詳細説明文エリア終わり*/
+
+/*スペック表*/
+.spec {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    font-size: 12px;
+}
+.table {
+    border-collapse: collapse;
+    border: 0px;
+    width: 100%;
+}
+th {
+    padding: 8px;
+    text-align: left;
+    background-color: #f3f3f3;
+    border-width: 0.5px 0px;
+    border-color: #999999;
+    border-style: dotted;
+    width: 90px;
+}
+td {padding: 8px;
+    border-width: 0.5px 0px;
+    border-color: #999999;
+    border-style: dotted;
+}
+/*スペック表終わり*/
+
+/*その他のおすすめの商品*/
+/*marginの指定順序: 上 左 右 下*/
+.related_products {
+    /* overflow: auto; */
+    clear: both;
+    margin-top: 50px;
+    margin-bottom: 100px;
+}
+.related_products h2{
+    font-size: 15px;
+}
+.related_products li{
+    width: 185px;
+    height: 300px;
+    float: left;
+    list-style: none;
+    margin: 15px 19px 0 0;
+}
+.related_products li img{
+    width: 185px;
+    height: 185px;
+    transition: all .2s ease-in-out;
+}
+.related_products li img:hover{
+    box-shadow: 0px 0px 3px rgba(109, 88, 88, 0.5);
+    cursor: pointer;
+    cursor: hand;
+}
+/*商品名表示*/
+.related_products li h3{
+    margin-top: 10px;
+    font-size: 12px;
+}
+/*値段表示*/
+.related_products li h4{
+    margin-top: 2px;
+    font-size: 12px;
+}
+/*その他のおすすめの商品終わり*/
+
+/*フッター*/
+/* footer {
+    text-align: center;
+    padding-top: 100px;
+    background-color: #333333;
+    height: 200px;
+    margin-bottom: 0px;
+    bottom: 0px;
+    padding-bottom: 0px;
+} */
+/*フッター終わり*/
+
+/*--商品詳細ページ終わり----商品詳細ページ終わり----商品詳細ページ終わり----商品詳細ページ終わり----商品詳細ページ終わり--*/
+/*--商品詳細ページ終わり----商品詳細ページ終わり----商品詳細ページ終わり----商品詳細ページ終わり----商品詳細ページ終わり--*/
+
+/*--ショッピングカートページ始まり----ショッピングカートページ始まり----ショッピングカートページ始まり----ショッピングカートページ始まり--*/
+/*--ショッピングカートページ始まり----ショッピングカートページ始まり----ショッピングカートページ始まり----ショッピングカートページ始まり--*/
+
+/*ショッピングカートのページ*/
+#cargoPage {/*商品詳細ページ*/
+    z-index: 1;
+    /* background-color: #ffffff; */
+    width: 1024px;
+    position: absolute;
+    background-color: #ffffff;
+}
+#cargoPage li{
+    height: 210px;
+    width: 1024px;
+    margin: 0 0 0 0;
+    position: relative;
+}
+#cargoPage img{
+    height: 120px;
+    width: auto;
+}
+#cargoPage .cargoItemContent{
+    text-align: left;
+    vertical-align: middle;
+}
+#cargoPage table p{
+    display: inline-block;
+    margin: 0 20px;
+}
+
+#cargoPage .spec {
+    margin-top: 300px;
+    margin-bottom: 30px;
+    font-size: 12px;
+}
+#cargoPage table {
+    border-collapse: collapse;
+    border: 0px;
+    width: 100%;
+}
+#cargoPage th {
+    padding: 8px;
+    text-align: center;
+    background-color: #f3f3f3;
+    border-width: 0.5px 0px;
+    border-color: #999999;
+    border-style: dotted;
+    width: 90px;
+}
+#cargoPage .deleteBtnCell{
+    width: 30px;
+}
+#cargoPage .howManyItems{
+    width: 10px;
+}
+#cargoPage .cargoItemPrice{
+    width: 30px;
+}
+#cargoPage td {padding: 8px;
+    border-width: 0.5px 0px;
+    border-color: #999999;
+    border-style: dotted;
+    text-align: center;
+}
+#cargoPage .deleteFromCargo {
+    width: 20px;
+    height: auto;
+}
+#cargoPage .deleteFromCargo:hover{
+    cursor: pointer;
+    cursor: hand;
+}
+#cargoPage .deleteBtn_pos{
+    text-align: center;
+}
+
+/*--ショッピングカートページ終わり----ショッピングカートページ終わり----ショッピングカートページ終わり----ショッピングカートページ終わり--*/
+/*--ショッピングカートページ終わり----ショッピングカートページ終わり----ショッピングカートページ終わり----ショッピングカートページ終わり--*/
