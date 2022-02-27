@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+
+    <!--p5ライブラリ-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>real shop</title>
+    <!--
+        「public-admin」フォルダ内で「index.html」として管理。firebaseの「myFirstFirebase」プロジェクトに2つ目のアプリとしてデプロイして使う。
+        オンラインショップの「user-site」アプリとデータベースを共有している。
+        使い方：ターミナルでデスクトップの「test211130」フォルダに入り、firebase login。
+        「public-admin」フォルダが現在「admin-site」というターゲット名でプロジェクトに扱われている。
+        デプロイ方法：firebase deploy --only hosting:admin-site
+        ローカルホスト：firebase serve --only hosting:admin-site
+        テストはローカルホストで行い、本番実装はデプロイで行う。正直今回はこの管理者サイトを開くのは自分だけなのでローカルホストでも本番実験できる。
+    -->
+
+    <!-- update the version number as needed -->
+    <script defer src="/__/firebase/9.5.0/firebase-app-compat.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script defer src="/__/firebase/9.5.0/firebase-auth-compat.js"></script>
+    <script defer src="/__/firebase/9.5.0/firebase-database-compat.js"></script>
+    <script defer src="/__/firebase/9.5.0/firebase-firestore-compat.js"></script>
+    <script defer src="/__/firebase/9.5.0/firebase-functions-compat.js"></script>
+    <script defer src="/__/firebase/9.5.0/firebase-messaging-compat.js"></script>
+    <script defer src="/__/firebase/9.5.0/firebase-storage-compat.js"></script>
+    <script defer src="/__/firebase/9.5.0/firebase-analytics-compat.js"></script>
+    <script defer src="/__/firebase/9.5.0/firebase-remote-config-compat.js"></script>
+    <script defer src="/__/firebase/9.5.0/firebase-performance-compat.js"></script>
+    <!-- 
+      initialize the SDK after all desired features are loaded, set useEmulator to false
+      to avoid connecting the SDK to running emulators.
+    -->
+    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+  </head>
+
+  <body>
+    <script>
+
+        //グローバル変数でp5.jsの変数をここで定義する
+        //※使う変数はここで全て定義しておく。
+        var a=3;
+        var b;
+
+        //どの商品が入るかは一旦考えずに、綺麗に5-5-6で並べる。
+        var markerPosX= new Array(16);
+        var markerPosY= new Array(16);
+        var windowCenterX;
+        var windowCenterY;
+        console.log('innerWidth => '+innerWidth+', innerHeight => '+innerHeight);
+
+        //マーカーの余白、XY位置はこのmarkerRadiusに応じて自動で変更されるようになっている。
+        //markerRadiusはinnerHeightに比例して大きさが決まるようにしている。
+        var markerRadius=innerHeight/7;
+        console.log('markerRadius => '+markerRadius);
+        var markerMargin=markerRadius/5.5;
+        console.log('markerMargin => '+markerMargin);
+
+        var posX= new Array();
+        var posY= new Array();
+        var itemPos= new Array();
+
+        //ユーザーのアイコン情報を格納する配列
+        var userIcon=new Array();
+        var uPosX=new Array();
+        var uPosY=new Array();
+        var currentPageNum=new Array();
+        //作ってはみたが今のところcurrentPageNum[]配列しか使っていない（uPosXYは使っていない）
+        for(var i=0; i<5; i++){
+            userIcon[i]=[uPosX[i],uPosY[i],currentPageNum[i]];
+        }
+        //のちのちユーザーアイコンの色は指定したほうがいい
+        var userIconColor_H=new Array();//HSBでランダムにアイコン色を指定する
+        var userIconRadius=markerRadius/6;
+
+        var userScroll=new Array();//各ユーザーのスクロール値を格納する。配列はオンラインショップユーザーの数だけ増える。
+
+        var cartItemList_1=new Array(16);//ユーザー1のカートの中身のリスト
+        var cartItemList_2=new Array(16);//ユーザー2のカートの中身のリスト
+        var cartItemList_3=new Array(16);//ユーザー3のカートの中身のリスト
+        var cartItemList_4=new Array(16);//ユーザー4のカートの中身のリスト
+        var cartItemList_5=new Array(16);//ユーザー5のカートの中身のリスト
+        var cartMarkerOffset=10;//カートに追加された商品。ユーザーごとに丸で囲むので、重ならないようにオフセット。
+
+        var user1_histry=new Array();//ユーザー1の足跡
+        var user2_histry=new Array();//ユーザー2の足跡
+        var user3_histry=new Array();//ユーザー3の足跡
+        var user4_histry=new Array();//ユーザー4の足跡
+        var user5_histry=new Array();//ユーザー5の足跡
+
+        var userItemHist= new Array(16);//ユーザーがどの商品に何回訪れたのかの配列
+        var userCurrentItemHistFlag;//ユーザーが今見ている商品に過去何回訪れたか
+
+        var user1_orderFlag=0;
+        var user2_orderFlag=0;
+        var user3_orderFlag=0;
+        var user4_orderFlag=0;
+        var user5_orderFlag=0;
+        var user1_orderTimeStamp=0;
+        var user2_orderTimeStamp=0;
+        var user3_orderTimeStamp=0;
+        var user4_orderTimeStamp=0;
+        var user5_orderTimeStamp=0;
+
+        var whiteGrad_u1=0;//ユーザー1のオーダーが照らしている光
+        var whiteGrad_u2=0;
+        var whiteGrad_u3=0;
+        var whiteGrad_u4=0;
+        var whiteGrad_u5=0;
+
+        var whiteRadius_1=markerRadius;
+        var whiteRadius_2=markerRadius;
+        var whiteRadius_3=markerRadius;
+        var whiteRadius_4=markerRadius;
+        var whiteRadius_5=markerRadius;
+        
+        var whiteRad_step_1=0;
+        var whiteRad_step_2=0;
+        var whiteRad_step_3=0;
+        var whiteRad_step_4=0;
+        var whiteRad_step_5=0;
+
+        //各ユーザーが現在見ている商品写真No.
+        var user_seeingPhoto=new Array(5);
+        //写真No.に沿って動くための角度
+        var user_cAngle=[0,0,0,0,0];//currentAngleの略
+        var user_nAngle=[0,0,0,0,0];//nextAngleの略
+        var user_posAngle=[0,0,0,0,0];//今現在の位置を決めるためのアングル
+        var user_angleMoveFlag=[0,0,0,0,0];//フラグが立っている間は滑らかに動く
+
+        //カートに追加されたときのマーカー枠がクルッとなるための角度の配列
+        var user_cartArcAngle=new Array(5);
+        var item_cartAngle_1=new Array(16);
+        var item_cartAngle_2=new Array(16);
+        var item_cartAngle_3=new Array(16);
+        var item_cartAngle_4=new Array(16);
+        var item_cartAngle_5=new Array(16);
+        user_cartArcAngle[0]=item_cartAngle_1;
+        user_cartArcAngle[1]=item_cartAngle_1;
+        user_cartArcAngle[2]=item_cartAngle_1;
+        user_cartArcAngle[3]=item_cartAngle_1;
+        user_cartArcAngle[4]=item_cartAngle_1;
+        console.log('user_cartArcAngle => '+user_cartArcAngle);
+
+        var itemHistry_1=new Array();//商品1（item01）の、足跡の配列。いすとりゲーム（いすは増えていく）。
+        //インデックスはその商品ページを退出した誰かたちの順番。要素は最初は全てnull。誰かがその商品から退出すると、そのユーザーの番号が格納されていく。
+
+        //--p5.js----p5.js----p5.js----p5.js----p5.js----p5.js--//
+        //--p5.js----p5.js----p5.js----p5.js----p5.js----p5.js--//
+
+        //まず画像を読み込む
+        function preload(){
+            cartImg=loadImage('images/cart.png')//cart.pngはオリジナルサイズがW68, H59
+            orderedImg=loadImage('images/ordered.png')//ordered.pngはオリジナルサイズがW59, H40
+        }
+
+        function setup(){
+            
+            console.log('b => '+b);
+            createCanvas(innerWidth+100, innerHeight+100);
+            windowCenterX=innerWidth/2+50;
+            windowCenterY=innerHeight/2+50;
+
+            //マーカーの位置を設定する。
+            //マーカー1段目
+            markerPosX[0]=windowCenterX;
+            markerPosX[1]=markerPosX[0]-markerRadius*2-markerMargin;
+            markerPosX[2]=markerPosX[1]-markerRadius*2-markerMargin;
+            markerPosX[3]=markerPosX[0]+markerRadius*2+markerMargin;
+            markerPosX[4]=markerPosX[3]+markerRadius*2+markerMargin;
+            markerPosY[0]=windowCenterY+markerRadius*2+markerMargin;
+            markerPosY[1]=windowCenterY+markerRadius*2+markerMargin;
+            markerPosY[2]=windowCenterY+markerRadius*2+markerMargin;
+            markerPosY[3]=windowCenterY+markerRadius*2+markerMargin;
+            markerPosY[4]=windowCenterY+markerRadius*2+markerMargin;
+
+            //マーカー2段目
+            markerPosX[5]=markerPosX[0];
+            markerPosX[6]=markerPosX[1];
+            markerPosX[7]=markerPosX[2];
+            markerPosX[8]=markerPosX[3];
+            markerPosX[9]=markerPosX[4];
+            markerPosY[5]=windowCenterY;
+            markerPosY[6]=windowCenterY;
+            markerPosY[7]=windowCenterY;
+            markerPosY[8]=windowCenterY;
+            markerPosY[9]=windowCenterY;
+
+            //マーカー3段目
+            markerPosX[10]=windowCenterX-markerMargin/2-markerRadius;
+            markerPosX[11]=markerPosX[10]-markerRadius*2-markerMargin;
+            markerPosX[12]=markerPosX[11]-markerRadius*2-markerMargin;
+            markerPosX[13]=windowCenterX+markerMargin/2+markerRadius;
+            markerPosX[14]=markerPosX[13]+markerRadius*2+markerMargin;
+            markerPosX[15]=markerPosX[14]+markerRadius*2+markerMargin;
+            markerPosY[10]=windowCenterY-markerRadius*2-markerMargin;
+            markerPosY[11]=windowCenterY-markerRadius*2-markerMargin;
+            markerPosY[12]=windowCenterY-markerRadius*2-markerMargin;
+            markerPosY[13]=windowCenterY-markerRadius*2-markerMargin;
+            markerPosY[14]=windowCenterY-markerRadius*2-markerMargin;
+            markerPosY[15]=windowCenterY-markerRadius*2-markerMargin;
+
+            //商品No.をマーカー位置に一致させる。
+            posX[0]=markerPosX[12]; posY[0]=markerPosY[12];//オードリーココットが何番の位置にあるか。
+            posX[1]=markerPosX[7]; posY[1]=markerPosY[7];//ペイヴ
+            posX[2]=markerPosX[10]; posY[2]=markerPosY[10];//山茶花
+            posX[3]=markerPosX[4]; posY[3]=markerPosY[4];//クルヴァーレ
+            posX[4]=markerPosX[6]; posY[4]=markerPosY[6];//トロンバ
+            posX[5]=markerPosX[15]; posY[5]=markerPosY[15];//フェルメ
+            posX[6]=markerPosX[0]; posY[6]=markerPosY[0];//スクカップ
+            posX[7]=markerPosX[13]; posY[7]=markerPosY[13];//プラッカ
+            posX[8]=markerPosX[1]; posY[8]=markerPosY[1];//ティルト
+            posX[9]=markerPosX[8]; posY[9]=markerPosY[8];//フラップ
+            posX[10]=markerPosX[3]; posY[10]=markerPosY[3];//グレコ
+            posX[11]=markerPosX[2]; posY[11]=markerPosY[2];//パイル
+            posX[12]=markerPosX[9]; posY[12]=markerPosY[9];//ムニュ
+            posX[13]=markerPosX[14]; posY[13]=markerPosY[14];//ヤンミー
+            posX[14]=markerPosX[5]; posY[14]=markerPosY[5];//ナンバーズ
+            posX[15]=markerPosX[11]; posY[15]=markerPosY[11];//ココット
+
+            for(var i=0; i<16; i++){
+                itemPos[i]=[posX[i], posY[i]];
+            }
+        
+            colorMode(HSB, 360, 100, 100, 100);
+            userIconColor_H[0]=288;
+            userIconColor_H[1]=72;
+            userIconColor_H[2]=216;
+            userIconColor_H[3]=0;
+            userIconColor_H[4]=144;
+
+            textSize(20);
+            textAlign(CENTER);
+            imageMode(CENTER);
+        }
+
+        function draw(){
+            background(0);
+
+            for(var i=0; i<16; i++){
+                push();
+                translate(itemPos[i][0], itemPos[i][1]);//各itemPosへ座標を移動
+
+                //マーカーの描画
+                noFill(); stroke(255); strokeWeight(0.3);
+                ellipse(0, 0, markerRadius*2, markerRadius*2);
+
+                fill(255); noStroke();
+                // text('item '+(i+1), 0, 0);
+
+                //カートに追加されたらユーザーアイコンがぐるっと一周して、カートアイコンに変化するようなアニメーション作りたい。
+
+                //決済されたら、カートアイコンを（できればグラデーションで）決済されたマークに変化させたい。たぶんここは少し目立つ変化のほうがいい。
+                //まずはシンプルに、決済されたマークへの変化を制作する。
+                //--!!--投影後の追記--!!--決済されたときは照らされるような感じにする。
+
+                //カート追加を描画する
+                var cartIconRate=1/5;//カートに追加されたアイコンの大きさの倍率
+
+                //--!!--投影後の追記--!!--あとは写真切り替えをどうするか、のみ。
+                //写真切り替えはシンプルにしてノイズにならないようにしたい。文章を読まないタイプもいるはず。
+                //スクロールと同じコンセプトで、6枚写真前提でスムーズに円周の上を動かす。
+                
+                //--!!--投影後の追記--!!--カートのアイコン表示よりも、カートに追加されたときにクルッと囲う感じのほうがいいかも
+                //--!!--投影後の追記--!!--チェックマークもカートマークも要らない気がする。チェックアイコンをなくす場合、クルッとするエフェクトは必須。
+                //!!--ここでカートアイコンとその枠線の表示位置を、マーカー枠に被らないように少し内側へ調整する。
+                if(cartItemList_1[i]>=1){
+                    noFill(0); stroke(userIconColor_H[0], 50, 100,100); strokeWeight(2);
+                    ellipse(0,0,markerRadius*2-cartMarkerOffset*0, markerRadius*2-cartMarkerOffset*0);
+                    // ellipse(0, 0-markerRadius, 150*cartIconRate,150*cartIconRate);
+                    // image(orderedImg, 0, 0-markerRadius, 68*cartIconRate, 59*cartIconRate);
+                }
+                if(cartItemList_2[i]>=1){
+                    noFill(0); stroke(userIconColor_H[1], 50, 100,100); strokeWeight(2);
+                    ellipse(0,0,markerRadius*2-cartMarkerOffset*1, markerRadius*2-cartMarkerOffset*1);
+                    // ellipse(0, 0-markerRadius, 150*cartIconRate,150*cartIconRate);
+                    // image(orderedImg, 0, 0-markerRadius, 68*cartIconRate, 59*cartIconRate);
+                }
+                if(cartItemList_3[i]>=1){
+                    noFill(0); stroke(userIconColor_H[2], 50, 100,100); strokeWeight(2);
+                    ellipse(0,0,markerRadius*2-cartMarkerOffset*2, markerRadius*2-cartMarkerOffset*2);
+                    // ellipse(0, 0-markerRadius, 150*cartIconRate,150*cartIconRate);
+                    // image(orderedImg, 0, 0-markerRadius, 68*cartIconRate, 59*cartIconRate);
+                }
+                if(cartItemList_4[i]>=1){
+                    noFill(0); stroke(userIconColor_H[3], 50, 100,100); strokeWeight(2);
+                    ellipse(0,0,markerRadius*2-cartMarkerOffset*3, markerRadius*2-cartMarkerOffset*3);
+                    // ellipse(0, 0-markerRadius, 150*cartIconRate,150*cartIconRate);
+                    // image(orderedImg, 0, 0-markerRadius, 68*cartIconRate, 59*cartIconRate);
+                }
+                if(cartItemList_5[i]>=1){
+                    noFill(0); stroke(userIconColor_H[4], 50, 100,100); strokeWeight(2);
+                    ellipse(0,0,markerRadius*2-cartMarkerOffset*4, markerRadius*2-cartMarkerOffset*4);
+                    // ellipse(0, 0-markerRadius, 150*cartIconRate,150*cartIconRate);
+                    // image(orderedImg, 0, 0-markerRadius, 68*cartIconRate, 59*cartIconRate);
+                }
+
+                //決済エフェクト完成。
+                //決済されると、照らしている光が机奥へと消えていく。商品が持っていかれる様子をイメージした。
+                if(user1_orderFlag==1){//決済された。
+                    if(cartItemList_1[i]=='ordered'){//item0iがユーザー1によって'ordered'になっているとき
+                        if(whiteGrad_u1<256){
+                            whiteGrad_u1+=2.5;
+                        }
+                        fill(whiteGrad_u1); stroke(userIconColor_H[0], 50, 100,100); strokeWeight(3);
+                        ellipse(0,0,whiteRadius_1*2, whiteRadius_1*2);
+                        if(millis()-user1_orderTimeStamp>3000){//3秒後
+                            if(whiteRadius_1>=0){whiteRadius_1-=whiteRad_step_1;}
+                            whiteRad_step_1+=0.02;
+                        }
+                    }
+                }
+                if(user2_orderFlag==1){//決済された。
+                    if(cartItemList_2[i]=='ordered'){//item0iがユーザー2によって'ordered'になっているとき
+                        if(whiteGrad_u2<256){
+                            whiteGrad_u2+=2.5;
+                        }
+                        fill(whiteGrad_u2); stroke(userIconColor_H[1], 50, 100,100); strokeWeight(3);
+                        ellipse(0,0,whiteRadius_2*2, whiteRadius_2*2);
+                        if(millis()-user2_orderTimeStamp>3000){//3秒後
+                            if(whiteRadius_2>=0){whiteRadius_2-=whiteRad_step_2;}
+                            whiteRad_step_2+=0.02;
+                        }
+                    }
+                }
+                if(user3_orderFlag==1){//決済された。
+                    if(cartItemList_3[i]=='ordered'){//item0iがユーザー3によって'ordered'になっているとき
+                        if(whiteGrad_u3<256){
+                            whiteGrad_u3+=2.5;
+                        }
+                        fill(whiteGrad_u3); stroke(userIconColor_H[2], 50, 100,100); strokeWeight(3);
+                        ellipse(0,0,whiteRadius_3*2, whiteRadius_3*2);
+                        if(millis()-user3_orderTimeStamp>3000){//3秒後
+                            if(whiteRadius_3>=0){whiteRadius_3-=whiteRad_step_3;}
+                            whiteRad_step_3+=0.02;
+                        }
+                    }
+                }
+                if(user4_orderFlag==1){//決済された。
+                    if(cartItemList_4[i]=='ordered'){//item0iがユーザー1によって'ordered'になっているとき
+                        if(whiteGrad_u4<256){
+                            whiteGrad_u4+=2.5;
+                        }
+                        fill(whiteGrad_u4); stroke(userIconColor_H[3], 50, 100,100); strokeWeight(3);
+                        ellipse(0,0,whiteRadius_4*2, whiteRadius_4*2);
+                        if(millis()-user4_orderTimeStamp>3000){//3秒後
+                            if(whiteRadius_4>=0){whiteRadius_4-=whiteRad_step_4;}
+                            whiteRad_step_4+=0.02;
+                        }
+                    }
+                }
+                if(user5_orderFlag==1){//決済された。
+                    if(cartItemList_5[i]=='ordered'){//item0iがユーザー1によって'ordered'になっているとき
+                        if(whiteGrad_u5<256){
+                            whiteGrad_u5+=2.5;
+                        }
+                        fill(whiteGrad_u5); stroke(userIconColor_H[4], 50, 100,100); strokeWeight(3);
+                        ellipse(0,0,whiteRadius_5*2, whiteRadius_5*2);
+                        if(millis()-user5_orderTimeStamp>3000){//3秒後
+                            if(whiteRadius_5>=0){whiteRadius_5-=whiteRad_step_5;}
+                            whiteRad_step_5+=0.02;
+                        }
+                    }
+                }
+
+
+                //あるユーザーが何度も同じ商品を見にきていることを表すタイプ→採用。
+                //→ユーザー現在位置の丸に外枠をつける
+                //→「そのユーザーはいつもその商品を買っている」ことを表すのにも応用できる可能性あり。
+                //→そのユーザーがその商品を買おうかどれだけ迷っているか/検討しているかを示唆できるので、投げ銭文化提案へ繋がる
+
+                //あるユーザーが辿ってきた（比べてきた）商品を全て表すタイプ→不採用。ノイズが多いのと、リアルタイム性少ない。
+                //→ユーザーの現在位置に関わらず、一度でもユーザーが取ったページに印をつける
+                //→現在位置との兼ね合いがつきづらい。
+
+                //足跡を描画する
+                // var histryIconRate=1/7//アイコンの大きさ倍率
+                // //ユーザー1
+                // for(var h=0; h<user1_histry.length; h++){
+                //     fill(0); stroke(userIconColor_H[0], 50, 100,100); strokeWeight(1);
+                //     if(user1_histry[h]==i+1){//h＝参照しているuser1_histry要素とアイテムナンバーが一致しているアイテムには印をつける。
+                //         ellipse(0-markerRadius,0,150*histryIconRate,150*histryIconRate);
+                //     }
+                // }
+
+                //item01についている足跡を描画する
+                // if(i==0){
+                //     for(var iH=0; iH<itemHistry_1.length; iH++){//item01のヒストリーの長さだけ繰り返す
+                //         fill(0); stroke(userIconColor_H[itemHistry_1[iH]-1], 50, 100,100); strokeWeight(1);
+                //         ellipse(0,0-markerRadius,15,15);
+                //         if(cartItemList_1[i]>=1){//ユーザー1が商品1をカートに入れている場合
+                //             image(cartImg, 0, 0-markerRadius, 10,10);
+                //         }
+                //         rotate(radians(-10));
+                //     }
+                // }
+
+                pop();
+            }
+
+            //夏時点での円弧の書き方。
+            // arc(checkingPosX[0],checkingPosY[0],iconDiam,iconDiam,radians(angleA),radians(angleA+120));
+            // arc(中心x座標, 中心y座標, 半径x, 半径y, 始点のradian角度, 終点のradian角度)
+            //scroll[]の最大値は「4979」
+
+            //ユーザーの現在位置アイコンの描画＋足跡が深くなる描写
+            noStroke();
+            ellipseMode(CENTER);
+            for(var u=0; u<5; u++){//uはユーザー。商品のfor文との区別が分かりづらいので、商品はiでfor文を、ユーザーはuでfor文を回す。
+                if(currentPageNum[u]>0){
+                    var centX=itemPos[currentPageNum[u]-1][0];
+                    var centY=itemPos[currentPageNum[u]-1][1];
+                    
+                    for(var i=0; i<16; i++){
+                        switch(u){
+                        case 0://ユーザー1
+                            userItemHist=userHistryItemCount(user1_histry);
+                            userCurrentItemHistFlag=userItemHist[currentPageNum[u]-1];//ユーザー1の現在見ている商品がユーザー1に確認された回数;
+                        break;
+                        case 1://ユーザー2
+                            userItemHist=userHistryItemCount(user2_histry);
+                            userCurrentItemHistFlag=userItemHist[currentPageNum[u]-1];//ユーザー1の現在見ている商品がユーザー1に確認された回数;
+                        break;
+                        case 2://ユーザー3
+                            userItemHist=userHistryItemCount(user3_histry);
+                            userCurrentItemHistFlag=userItemHist[currentPageNum[u]-1];//ユーザー1の現在見ている商品がユーザー1に確認された回数;
+                        break;
+                        case 3://ユーザー4
+                            userItemHist=userHistryItemCount(user4_histry); 
+                            userCurrentItemHistFlag=userItemHist[currentPageNum[u]-1];//ユーザー1の現在見ている商品がユーザー1に確認された回数;
+                        break;
+                        case 4://ユーザー5
+                            userItemHist=userHistryItemCount(user5_histry);
+                            userCurrentItemHistFlag=userItemHist[currentPageNum[u]-1];//ユーザー1の現在見ている商品がユーザー1に確認された回数;
+                        break;
+                        }
+                    }
+
+                    //作成中の確認用
+                    // fill(255);
+                    // text(userCurrentItemHistFlag, centX,centY-100);
+                    
+                    var footPrintRadius=userIconRadius;
+                    //そのユーザーが現在見ている商品が、そのユーザーに確認された回数が多いほど...を表示する。
+                    
+                    //ユーザーアイコンの足跡完成。
+                    //userCurrentItemFlagは最初にそのページに入った時点で1になる。そのページに入るごとに数が増える。
+                    //ユーザーアイコン：一番したに少し大きな黒丸を置くことで、マーカー線からアイコンを浮かせる
+                    var userShadowRadius=userIconRadius+userCurrentItemHistFlag*8
+                    
+                    //--!--ユーザーアイコン（詳しく見ている）の描画
+
+                    //スクロールが100を超えているとき（ページ下部にいるとき）はスクロールに沿って商品の周りを回る
+                    if(userScroll[u]>7.23){
+                        var iconPosX=centX+markerRadius*cos(radians(userScroll[u]-90));
+                        var iconPosY=centY+markerRadius*sin(radians(userScroll[u]-90));
+                        //アイコンの黒い影
+                        fill(0);noStroke();
+                        ellipse(iconPosX, iconPosY, userShadowRadius,userShadowRadius);
+                        fill(userIconColor_H[u],50,100,100); noStroke();
+                        ellipse(iconPosX, iconPosY, userIconRadius, userIconRadius);
+                        for(var i=0; i<userCurrentItemHistFlag-1; i++){
+                            noFill(); stroke(userIconColor_H[u],50,100,100); strokeWeight(2);//いい感じ。
+                            footPrintRadius=footPrintRadius+8;
+                            ellipse(iconPosX, iconPosY,footPrintRadius,footPrintRadius);
+                        }
+                        user_cAngle[u]=0;
+                    }//スクロールが100以下のとき（ページ上部にいるとき）は選択写真によって商品の周りを回る
+                    else{
+                        if(user_angleMoveFlag[u]==1){
+                            user_nAngle[u]=user_seeingPhoto[u]*60;
+                            if(user_cAngle[u]<user_nAngle[u]){
+                                user_posAngle[u]+=3;
+                                if(user_posAngle[u]==user_nAngle[u]){//nextAngleに到達した
+                                    user_angleMoveFlag[u]=0;
+                                    user_cAngle[u]=user_nAngle[u];
+                                }
+                            }
+                            if(user_cAngle[u]>user_nAngle[u]){
+                                user_posAngle[u]-=3;
+                                if(user_posAngle[u]==user_nAngle[u]){//nextAngleに到達した
+                                    user_angleMoveFlag[u]=0;
+                                    user_cAngle[u]=user_nAngle[u];
+                                }
+                            }
+                        }
+                        //このiconPosXを滑らかに動かす。
+                        var iconPosX=centX+markerRadius*cos(radians(user_posAngle[u]-90));
+                        var iconPosY=centY+markerRadius*sin(radians(user_posAngle[u]-90));
+                        //アイコンの黒い影
+                        fill(0);noStroke();
+                        ellipse(iconPosX, iconPosY, userShadowRadius,userShadowRadius);
+                        fill(userIconColor_H[u],50,100,100); noStroke();
+                        ellipse(iconPosX, iconPosY, userIconRadius, userIconRadius);
+                        for(var i=0; i<userCurrentItemHistFlag-1; i++){
+                            noFill(); stroke(userIconColor_H[u],50,100,100); strokeWeight(2);//いい感じ。
+                            footPrintRadius=footPrintRadius+8;
+                            ellipse(iconPosX, iconPosY,footPrintRadius,footPrintRadius);
+                        }
+                    }
+                }
+            }//for(var u=0; u<5; u++){}終わり
+
+            //商品がカート内から注文されたときのエフェクト。
+            //何かを起点にしてuser1_orderFlagを0から1にする。デフォルト値は0。
+            //各ユーザーによって注文された商品の横に表示処理を描く。
+            if(user1_orderFlag!=0){
+                //!!--ここにユーザー1が注文してから10秒間の表示処理を記述。
+                if(millis()-user1_orderTimeStamp>10000){//10秒間
+                    user1_orderTimeStamp=millis();//タイマーリセット
+                    user1_orderFlag=0;
+                    //決済エフェクト変数の初期化
+                    whiteGrad_u1=0;
+                    whiteRadius_1=markerRadius;
+                    whiteRad_step_1=0;
+                    console.log("user1_orderFlag_回収した")
+                }
+            }
+            if(user2_orderFlag!=0){
+                //!!--ここにユーザー2が注文してから10秒間の表示処理を記述。
+                if(millis()-user2_orderTimeStamp>10000){//10秒間
+                    user2_orderTimeStamp=millis();//タイマーリセット
+                    user2_orderFlag=0;
+                    whiteGrad_u2=0;
+                    whiteRadius_2=markerRadius;
+                    whiteRad_step_2=0;
+                    console.log("user2_orderFlag_回収した")
+                }
+            }
+            if(user3_orderFlag!=0){
+                //!!--ここにユーザー3が注文してから10秒間の表示処理を記述。
+                if(millis()-user3_orderTimeStamp>10000){//10秒間
+                    user3_orderTimeStamp=millis();//タイマーリセット
+                    user3_orderFlag=0;
+                    whiteGrad_u3=0;
+                    whiteRadius_3=markerRadius;
+                    whiteRad_step_3=0;
+                    console.log("user3_orderFlag_回収した")
+                }
+            }
+            if(user4_orderFlag!=0){
+                //!!--ここにユーザー4が注文してから10秒間の表示処理を記述。
+                if(millis()-user4_orderTimeStamp>10000){//10秒間
+                    user4_orderTimeStamp=millis();//タイマーリセット
+                    user4_orderFlag=0;
+                    whiteGrad_u4=0;
+                    whiteRadius_4=markerRadius;
+                    whiteRad_step_4=0;
+                    console.log("user4_orderFlag_回収した")
+                }
+            }
+            if(user5_orderFlag!=0){
+                //!!--ここにユーザー5が注文してから10秒間の表示処理を記述。
+                if(millis()-user5_orderTimeStamp>10000){//10秒間
+                    user5_orderTimeStamp=millis();//タイマーリセット
+                    user5_orderFlag=0;
+                    whiteGrad_u5=0;
+                    whiteRadius_5=markerRadius;
+                    whiteRad_step_5=0;
+                    console.log("user5_orderFlag_回収した")
+                }
+            } 
+
+        }//function draw 終わり
+
+        function reMapScroll(scrollValue){
+            var mappedScrollValue=map(scrollValue, 0, 4979, 0, 360);
+            return mappedScrollValue;
+        }
+
+        function userHistryItemCount(userHistry){
+            //渡された配列userHistryからユーザーがitem0iを見た回数を調べる
+            //渡す配列はuser1_histry, user2_histryなどのどれか。
+            var userHistry_itemCounts=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+            for(var i=0; i<16; i++){
+                for(var h=0; h<userHistry.length; h++){
+                    if(userHistry[h]==i+1){
+                        userHistry_itemCounts[i]++;
+                    }
+                }
+            }
+            return userHistry_itemCounts;
+        }
+
+        //--p5.js----p5.js----p5.js----p5.js----p5.js----p5.js--//
+        //--p5.js----p5.js----p5.js----p5.js----p5.js----p5.js--//
+    </script>
+
+    <script type="module">
+        //上のfunction setup() と function draw() に比べてこちらが先に処理される。
+        //使う変数はここではなく上の<script>で定義しておく。
+        //※firebaseから取ってきたデータを格納したい変数も、上の<script>で定義しておく。
+        console.log('a => '+a);
+        b=2;
+
+      document.addEventListener('DOMContentLoaded', function() {
+        const loadEl = document.querySelector('#load');
+        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+        // // The Firebase SDK is initialized and available here!
+        //
+        // firebase.auth().onAuthStateChanged(user => { });
+        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
+        // firebase.firestore().doc('/foo/bar').get().then(() => { });
+        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
+        // firebase.messaging().requestPermission().then(() => { });
+        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
+        // firebase.analytics(); // call to activate
+        // firebase.analytics().logEvent('tutorial_completed');
+        // firebase.performance(); // call to activate
+        //
+        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+        
+      });
+      //<script>と書けばそのあとはjavascript。"module"としたのはexportするときのため。
+
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-analytics.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+  
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyBS140kYu9SCZRFf49Ie3CdK0V_zRjk8Oo",
+      authDomain: "myfirstfirebase-21c7a.firebaseapp.com",
+      databaseURL: "https://myfirstfirebase-21c7a-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "myfirstfirebase-21c7a",
+      storageBucket: "myfirstfirebase-21c7a.appspot.com",
+      messagingSenderId: "188775071603",
+      appId: "1:188775071603:web:fba94009c7432a27a04f06",
+      measurementId: "G-250QQZ95GZ"
+    };
+  
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+
+    var db=firebase.database();
+
+    // db.ref('users/').once('value',(snapshot) =>{
+    //     var data=snapshot.val();//JSONでusersのデータを全て取得。
+    //     console.log(data);
+    // });
+
+    db.ref('users/'+1+'/currentPage/itemNumber').on('value',(snapshot) =>{
+        var currentPage=snapshot.val();
+        currentPageNum[0]=currentPage;
+        user_cAngle[0]=0;//角度をリセット
+        user_nAngle[0]=0;//角度をリセット
+        user_posAngle[0]=0;//角度をリセット
+        var checkedItem=snapshot.val();
+        //ユーザー1のヒストリーに商品を加える
+        if(checkedItem!=0){
+            user1_histry.push(checkedItem);
+            // console.log('user1_histry[] => '+user1_histry);
+            // console.log('user1_histry_itemCounts => '+userHistryItemCount(user1_histry));
+        }
+    });
+    db.ref('users/'+2+'/currentPage/itemNumber').on('value',(snapshot) =>{
+        var currentPage=snapshot.val();
+        currentPageNum[1]=currentPage;
+        user_cAngle[1]=0;//角度をリセット
+        user_nAngle[1]=0;//角度をリセット
+        user_posAngle[1]=0;//角度をリセット
+        var checkedItem=snapshot.val();
+        //ユーザー2のヒストリーに商品を加える
+        if(checkedItem!=0){
+            user2_histry.push(checkedItem);
+            // console.log('user1_histry[] => '+user1_histry);
+            // console.log('user1_histry_itemCounts => '+userHistryItemCount(user1_histry));
+        }
+    });
+    db.ref('users/'+3+'/currentPage/itemNumber').on('value',(snapshot) =>{
+        var currentPage=snapshot.val();
+        currentPageNum[2]=currentPage;
+        user_cAngle[2]=0;//角度をリセット
+        user_nAngle[2]=0;//角度をリセット
+        user_posAngle[2]=0;//角度をリセット
+        var checkedItem=snapshot.val();
+        //ユーザー3のヒストリーに商品を加える
+        if(checkedItem!=0){
+            user3_histry.push(checkedItem);
+            // console.log('user1_histry[] => '+user1_histry);
+            // console.log('user1_histry_itemCounts => '+userHistryItemCount(user1_histry));
+        }
+    });
+    db.ref('users/'+4+'/currentPage/itemNumber').on('value',(snapshot) =>{
+        var currentPage=snapshot.val();
+        currentPageNum[3]=currentPage;
+        user_cAngle[3]=0;//角度をリセット
+        user_nAngle[3]=0;//角度をリセット
+        user_posAngle[3]=0;//角度をリセット
+        var checkedItem=snapshot.val();
+        //ユーザー4のヒストリーに商品を加える
+        if(checkedItem!=0){
+            user4_histry.push(checkedItem);
+            // console.log('user1_histry[] => '+user1_histry);
+            // console.log('user1_histry_itemCounts => '+userHistryItemCount(user1_histry));
+        }
+    });
+    db.ref('users/'+5+'/currentPage/itemNumber').on('value',(snapshot) =>{
+        var currentPage=snapshot.val();
+        currentPageNum[4]=currentPage;
+        user_cAngle[4]=0;//角度をリセット
+        user_nAngle[4]=0;//角度をリセット
+        user_posAngle[4]=0;//角度をリセット
+        var checkedItem=snapshot.val();
+        //ユーザー5のヒストリーに商品を加える
+        if(checkedItem!=0){
+            user5_histry.push(checkedItem);
+            // console.log('user1_histry[] => '+user1_histry);
+            // console.log('user1_histry_itemCounts => '+userHistryItemCount(user1_histry));
+        }
+    });
+    db.ref('users/'+1+'/currentPage/scroll').on('value',(snapshot) =>{
+        var scroll=snapshot.val();
+        userScroll[0]=reMapScroll(scroll);
+        //  console.log("ユーザー1 スクロール更新 => "+userScroll[0]);
+    })
+    db.ref('users/'+2+'/currentPage/scroll').on('value',(snapshot) =>{
+        var scroll=snapshot.val();
+        userScroll[1]=reMapScroll(scroll);
+        // console.log("ユーザー2 スクロール更新 => "+userScroll[1]);
+    })
+    db.ref('users/'+3+'/currentPage/scroll').on('value',(snapshot) =>{
+        var scroll=snapshot.val();
+        userScroll[2]=reMapScroll(scroll);
+        // console.log("ユーザー3 スクロール更新 => "+userScroll[2]);
+    })
+    db.ref('users/'+4+'/currentPage/scroll').on('value',(snapshot) =>{
+        var scroll=snapshot.val();
+        userScroll[3]=reMapScroll(scroll);
+        // console.log("ユーザー4 スクロール更新 => "+userScroll[3]);
+    })
+    db.ref('users/'+5+'/currentPage/scroll').on('value',(snapshot) =>{
+        var scroll=snapshot.val();
+        userScroll[4]=reMapScroll(scroll);
+        // console.log("ユーザー5 スクロール更新 => "+userScroll[4]);
+    })
+
+    //カゴに追加されたアイテムについてログを取得する
+    //＊まだユーザー1のぶんしか書いていない
+    db.ref('users/'+1+'/cargo_items').on('value',(snapshot) =>{
+        var loadedCartItemList=snapshot.val();
+        cartItemList_1[0]=loadedCartItemList.item01; cartItemList_1[1]=loadedCartItemList.item02; cartItemList_1[2]=loadedCartItemList.item03; cartItemList_1[3]=loadedCartItemList.item04; 
+        cartItemList_1[4]=loadedCartItemList.item05; cartItemList_1[5]=loadedCartItemList.item06; cartItemList_1[6]=loadedCartItemList.item07; cartItemList_1[7]=loadedCartItemList.item08; 
+        cartItemList_1[8]=loadedCartItemList.item09; cartItemList_1[9]=loadedCartItemList.item10; cartItemList_1[10]=loadedCartItemList.item11; cartItemList_1[11]=loadedCartItemList.item12; 
+        cartItemList_1[12]=loadedCartItemList.item13; cartItemList_1[13]=loadedCartItemList.item14; cartItemList_1[14]=loadedCartItemList.item15; cartItemList_1[15]=loadedCartItemList.item16; 
+
+        var indexChecker=cartItemList_1.some( function( value ) {
+            return value === "ordered";//配列内に「ordered」が存在するかどうかを検索
+        });
+        if(indexChecker==true){//'ordered'が存在していた場合、
+            user1_orderTimeStamp=millis();//タイマー起動
+            user1_orderFlag=1;
+            console.log("user1_orderFlag立てた");
+        }
+        console.log('indexChecker => '+indexChecker);
+        console.log('cartItemList_1[] => '+cartItemList_1);
+    })
+    db.ref('users/'+2+'/cargo_items').on('value',(snapshot) =>{
+        var loadedCartItemList=snapshot.val();
+        cartItemList_2[0]=loadedCartItemList.item01; cartItemList_2[1]=loadedCartItemList.item02; cartItemList_2[2]=loadedCartItemList.item03; cartItemList_2[3]=loadedCartItemList.item04; 
+        cartItemList_2[4]=loadedCartItemList.item05; cartItemList_2[5]=loadedCartItemList.item06; cartItemList_2[6]=loadedCartItemList.item07; cartItemList_2[7]=loadedCartItemList.item08; 
+        cartItemList_2[8]=loadedCartItemList.item09; cartItemList_2[9]=loadedCartItemList.item10; cartItemList_2[10]=loadedCartItemList.item11; cartItemList_2[11]=loadedCartItemList.item12; 
+        cartItemList_2[12]=loadedCartItemList.item13; cartItemList_2[13]=loadedCartItemList.item14; cartItemList_2[14]=loadedCartItemList.item15; cartItemList_2[15]=loadedCartItemList.item16; 
+        
+        var indexChecker=cartItemList_2.some( function( value ) {
+            return value === "ordered";//配列内に「ordered」が存在するかどうかを検索
+        });
+        if(indexChecker==true){//'ordered'が存在していた場合、
+            user2_orderTimeStamp=millis();//タイマー起動
+            user2_orderFlag=1;
+            console.log("user2_orderFlag立てた");
+        }
+        console.log('cartItemList_2[] => '+cartItemList_1);
+    })
+    db.ref('users/'+3+'/cargo_items').on('value',(snapshot) =>{
+        var loadedCartItemList=snapshot.val();
+        cartItemList_3[0]=loadedCartItemList.item01; cartItemList_3[1]=loadedCartItemList.item02; cartItemList_3[2]=loadedCartItemList.item03; cartItemList_3[3]=loadedCartItemList.item04; 
+        cartItemList_3[4]=loadedCartItemList.item05; cartItemList_3[5]=loadedCartItemList.item06; cartItemList_3[6]=loadedCartItemList.item07; cartItemList_3[7]=loadedCartItemList.item08; 
+        cartItemList_3[8]=loadedCartItemList.item09; cartItemList_3[9]=loadedCartItemList.item10; cartItemList_3[10]=loadedCartItemList.item11; cartItemList_3[11]=loadedCartItemList.item12; 
+        cartItemList_3[12]=loadedCartItemList.item13; cartItemList_3[13]=loadedCartItemList.item14; cartItemList_3[14]=loadedCartItemList.item15; cartItemList_3[15]=loadedCartItemList.item16; 
+        
+        var indexChecker=cartItemList_3.some( function( value ) {
+            return value === "ordered";//配列内に「ordered」が存在するかどうかを検索
+        });
+        if(indexChecker==true){//'ordered'が存在していた場合、
+            user3_orderTimeStamp=millis();//タイマー起動
+            user3_orderFlag=1;
+            console.log("user3_orderFlag立てた");
+        }
+        console.log('cartItemList_3[] => '+cartItemList_1);
+    })
+    db.ref('users/'+4+'/cargo_items').on('value',(snapshot) =>{
+        var loadedCartItemList=snapshot.val();
+        cartItemList_4[0]=loadedCartItemList.item01; cartItemList_4[1]=loadedCartItemList.item02; cartItemList_4[2]=loadedCartItemList.item03; cartItemList_4[3]=loadedCartItemList.item04; 
+        cartItemList_4[4]=loadedCartItemList.item05; cartItemList_4[5]=loadedCartItemList.item06; cartItemList_4[6]=loadedCartItemList.item07; cartItemList_4[7]=loadedCartItemList.item08; 
+        cartItemList_4[8]=loadedCartItemList.item09; cartItemList_4[9]=loadedCartItemList.item10; cartItemList_4[10]=loadedCartItemList.item11; cartItemList_4[11]=loadedCartItemList.item12; 
+        cartItemList_4[12]=loadedCartItemList.item13; cartItemList_4[13]=loadedCartItemList.item14; cartItemList_4[14]=loadedCartItemList.item15; cartItemList_4[15]=loadedCartItemList.item16; 
+        
+        var indexChecker=cartItemList_4.some( function( value ) {
+            return value === "ordered";//配列内に「ordered」が存在するかどうかを検索
+        });
+        if(indexChecker==true){//'ordered'が存在していた場合、
+            user4_orderTimeStamp=millis();//タイマー起動
+            user4_orderFlag=1;
+            console.log("user4_orderFlag立てた");
+        }
+        console.log('cartItemList_4[] => '+cartItemList_1);
+    })
+    db.ref('users/'+5+'/cargo_items').on('value',(snapshot) =>{
+        var loadedCartItemList=snapshot.val();
+        cartItemList_5[0]=loadedCartItemList.item01; cartItemList_5[1]=loadedCartItemList.item02; cartItemList_5[2]=loadedCartItemList.item03; cartItemList_5[3]=loadedCartItemList.item04; 
+        cartItemList_5[4]=loadedCartItemList.item05; cartItemList_5[5]=loadedCartItemList.item06; cartItemList_5[6]=loadedCartItemList.item07; cartItemList_5[7]=loadedCartItemList.item08; 
+        cartItemList_5[8]=loadedCartItemList.item09; cartItemList_5[9]=loadedCartItemList.item10; cartItemList_5[10]=loadedCartItemList.item11; cartItemList_5[11]=loadedCartItemList.item12; 
+        cartItemList_5[12]=loadedCartItemList.item13; cartItemList_5[13]=loadedCartItemList.item14; cartItemList_5[14]=loadedCartItemList.item15; cartItemList_5[15]=loadedCartItemList.item16; 
+        
+        var indexChecker=cartItemList_5.some( function( value ) {
+            return value === "ordered";//配列内に「ordered」が存在するかどうかを検索
+        });
+        if(indexChecker==true){//'ordered'が存在していた場合、
+            user5_orderTimeStamp=millis();//タイマー起動
+            user5_orderFlag=1;
+            console.log("user5_orderFlag立てた");
+        }console.log('cartItemList_5[] => '+cartItemList_1);
+    })
+
+    //見ている写真No.をユーザーごとに取得
+    db.ref('users/'+1+'/currentPage/seeingPhoto').on('value',(snapshot) =>{
+        user_seeingPhoto[0]=snapshot.val();
+        user_angleMoveFlag[0]=1;
+        //console.log('user1_seeingPhoto => '+user1_seeingPhoto);
+    })
+    db.ref('users/'+2+'/currentPage/seeingPhoto').on('value',(snapshot) =>{
+        user_seeingPhoto[1]=snapshot.val();
+        user_angleMoveFlag[1]=1;
+    })
+    db.ref('users/'+3+'/currentPage/seeingPhoto').on('value',(snapshot) =>{
+        user_seeingPhoto[2]=snapshot.val();
+        user_angleMoveFlag[2]=1;
+    })
+    db.ref('users/'+4+'/currentPage/seeingPhoto').on('value',(snapshot) =>{
+        user_seeingPhoto[3]=snapshot.val();
+        user_angleMoveFlag[3]=1;
+    })
+    db.ref('users/'+5+'/currentPage/seeingPhoto').on('value',(snapshot) =>{
+        user_seeingPhoto[4]=snapshot.val();
+        user_angleMoveFlag[4]=1;
+    })
+
+    </script>
+  </body>
+</html>
